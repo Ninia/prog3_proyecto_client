@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<network>
+    <https-client>
+        <host>localhost</host>
+        <port>8080</port>
+    </https-client>
+    <test-client>
+        <port>[port number]</port>
+    </test-client>
+</network>
