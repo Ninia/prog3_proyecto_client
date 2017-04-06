@@ -1,6 +1,6 @@
 package ud.binmonkey.prog3_proyecto_client.https;
 
-import ud.binmonkey.prog3_proyecto_client.utils.network.URI;
+import ud.binmonkey.prog3_proyecto_client.common.network.URI;
 
 import javax.net.ssl.*;
 import java.io.*;
@@ -22,7 +22,7 @@ public class HTTPSClient {
     public SSLContext createSSLContext() {
         try {
             KeyStore ks = KeyStore.getInstance("JKS");
-            ks.load(new FileInputStream("src/test/resources/keys/httpserver.jks"), "changeit".toCharArray());
+            ks.load(new FileInputStream("src/test/resources/keys/keystore.jks"), "changeit".toCharArray());
 
             /* key manager */
             KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
