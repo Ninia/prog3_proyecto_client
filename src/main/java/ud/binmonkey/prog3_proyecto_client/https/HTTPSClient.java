@@ -1,10 +1,10 @@
 package ud.binmonkey.prog3_proyecto_client.https;
 
+import ud.binmonkey.prog3_proyecto_client.common.InputStreamStringReader;
 import ud.binmonkey.prog3_proyecto_client.common.network.URI;
 
 import javax.net.ssl.*;
 import java.io.*;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.*;
 import java.security.cert.CertificateException;
@@ -47,98 +47,35 @@ public class HTTPSClient {
         return null;
     }
 
-
-    public void run() {
-
+    /**
+     *
+     * @param userName username
+     * @param passWord password of user with username
+     * @return token if succeeded, null if it did not
+     * @throws IOException
+     */
+    public String login(String userName, String passWord) throws IOException {
         SSLContext sslContext = this.createSSLContext();
-
-        try {
-            HttpsURLConnection conn = (HttpsURLConnection) new URL("https://" + host + ":" + port).openConnection();
-            conn.setRequestMethod("GET");
-            conn.connect();
-            System.out.println("RESPONSE: " + conn.getResponseMessage());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    public void login(String userName, String passWord) throws IOException {
-        SSLContext sslContext = this.createSSLContext();
-
 
         HttpsURLConnection conn = (HttpsURLConnection) new URL(
                 "https://" + host + ":" + port + "/login?username=" + userName + "&password=" + passWord
         ).openConnection();
-        conn.setRequestMethod("GET");
+        conn.setRequestMethod("POST");
         conn.connect();
-        System.out.println("RESPONSE: " + conn.getResponseCode() + " " + conn.getResponseMessage());
-        System.out.println(conn.getHeaderField("content-type"));
-        System.out.println(conn.getContent().toString());
-        System.out.println(conn.getURL());
-
-    }
-
-
-    static class ClientThread extends Thread {
-
-        private SSLSocket sslSocket;
-
-        ClientThread(SSLSocket sslSocket) {
-            this.sslSocket = sslSocket;
+        try {
+            return InputStreamStringReader.readInputStream((InputStream) conn.getContent());
+        } catch (IOException e) {
+            return null;
         }
-
-        /* @Override */
-        public void run() {
-            sslSocket.setEnabledCipherSuites(sslSocket.getSupportedCipherSuites());
-
-            try {
-                sslSocket.startHandshake();
-                SSLSession sslSession = sslSocket.getSession();
-
-                System.out.println("SSLSession :");
-                System.out.println("\tProtocol : "+sslSession.getProtocol());
-                System.out.println("\tCipher suite : "+sslSession.getCipherSuite());
-
-                /* Handle application content */
-                InputStream is = sslSocket.getInputStream();
-                OutputStream os = sslSocket.getOutputStream();
-
-                BufferedReader br = new BufferedReader(new InputStreamReader(is));
-                PrintWriter pw = new PrintWriter(new OutputStreamWriter(os));
-
-                /* write data */
-                pw.println("Hi there");
-                pw.flush();
-
-                /* read response */
-                String response;
-                while((response = br.readLine()) != null) {
-                    System.out.println("Input: " + response);
-
-                    if(response.trim().equals("HTTP/1.1 200\r\n")){
-                        break;
-                    }
-                }
-                sslSocket.close();
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-        }
-
     }
 
 
     public static void main(String[] args) {
         HTTPSClient httpsClient = new HTTPSClient();
         try {
-            httpsClient.login("a", "b");
+            System.out.println(httpsClient.login("WonderWoman", "MYHMJDG4"));
         } catch (IOException e) {
             e.printStackTrace();
         }
-//        httpsClient.run();
     }
-
 }
