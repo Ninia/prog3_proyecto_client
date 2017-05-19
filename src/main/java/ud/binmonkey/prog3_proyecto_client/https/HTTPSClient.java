@@ -4,6 +4,7 @@ import ud.binmonkey.prog3_proyecto_client.common.network.URI;
 
 import javax.net.ssl.*;
 import java.io.*;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.*;
 import java.security.cert.CertificateException;
@@ -62,6 +63,22 @@ public class HTTPSClient {
 
     }
 
+    public void login(String userName, String passWord) throws IOException {
+        SSLContext sslContext = this.createSSLContext();
+
+
+        HttpsURLConnection conn = (HttpsURLConnection) new URL(
+                "https://" + host + ":" + port + "/login?username=" + userName + "&password=" + passWord
+        ).openConnection();
+        conn.setRequestMethod("GET");
+        conn.connect();
+        System.out.println("RESPONSE: " + conn.getResponseCode() + " " + conn.getResponseMessage());
+        System.out.println(conn.getHeaderField("content-type"));
+        System.out.println(conn.getContent().toString());
+        System.out.println(conn.getURL());
+
+    }
+
 
     static class ClientThread extends Thread {
 
@@ -116,7 +133,12 @@ public class HTTPSClient {
 
     public static void main(String[] args) {
         HTTPSClient httpsClient = new HTTPSClient();
-        httpsClient.run();
+        try {
+            httpsClient.login("a", "b");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+//        httpsClient.run();
     }
 
 }
