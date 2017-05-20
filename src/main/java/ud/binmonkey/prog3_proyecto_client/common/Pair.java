@@ -1,4 +1,4 @@
-package ud.binmonkey.prog3_proyecto_server.common;
+package ud.binmonkey.prog3_proyecto_client.common;
 
 /**
  *  Create or compare indexed pairs of strings
