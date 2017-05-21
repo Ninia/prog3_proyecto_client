@@ -44,6 +44,28 @@ public class HTTPSClient {
         }
     }
 
+    public String userInfo(String userName, String token) {
+        try {
+            return HTTPS.sendRequest("https://" + host, port, "/userInfo", Methods.GET, null, null,
+                    new Pair<>("username", userName), new Pair<>("token", token)).getContent();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public String changeProperty(String userName, String property, String value, String token) {
+        try {
+            return HTTPS.sendRequest("https://" + host, port, "/changeProperty", Methods.GET,
+                    null, null,
+                    new Pair<>("username", userName), new Pair<>("token", token),
+                    new Pair<>("property", property), new Pair<>("value", value)).getContent();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
 
     public static void main(String[] args) {
         String userName = "WonderWoman";
@@ -55,6 +77,9 @@ public class HTTPSClient {
         }
         System.out.println("Token: " + token);
         System.out.println(httpsClient.sessionInfo(userName, token));
+        System.out.println(httpsClient.userInfo(userName, token));
+        System.out.println(httpsClient.changeProperty(userName, "birth_date", "23-10-1990", token));
+        System.out.println(httpsClient.userInfo(userName, token));
 
         /* Uncomment the following lines to check user token expiration */
         /*
