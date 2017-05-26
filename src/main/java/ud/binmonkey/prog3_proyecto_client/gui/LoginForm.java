@@ -2,11 +2,10 @@ package ud.binmonkey.prog3_proyecto_client.gui;
 
 import ud.binmonkey.prog3_proyecto_client.common.Validator;
 import ud.binmonkey.prog3_proyecto_client.https.HTTPSClient;
+import ud.binmonkey.prog3_proyecto_client.https.Response;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
@@ -22,13 +21,17 @@ public class LoginForm {
     public JButton loginButton;
 
     public LoginForm() {
+
+        /* set title */
         try {
             MainWindow.INSTANCE.getFrame().setTitle("Log In");
         } catch (NullPointerException e) {
         }
+
+        /* check validity of username */
         usernameField.addKeyListener(new KeyAdapter() {
             @Override
-            public void keyTyped(KeyEvent keyEvent) {
+            public void keyReleased(KeyEvent keyEvent) {
                 super.keyTyped(keyEvent);
                 if (Validator.validName(usernameField.getText().toLowerCase())) {
                     usernameOKLabel.setForeground(Color.GREEN);
@@ -39,24 +42,39 @@ public class LoginForm {
                 }
             }
         });
-        loginButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                HTTPSClient client = new HTTPSClient();
 
-                String username = usernameField.getText().toLowerCase();
-                char[] password = passwordFiled.getPassword();
+        /* call @HTTPSClient.logIn method; if success launch @HomeForm*/
+        loginButton.addActionListener(actionEvent -> {
+            HTTPSClient client = new HTTPSClient();
 
-                String token = client.login(username, new String(password));
-                if (token != null) {
-                    usernameOKLabel.setForeground(Color.BLUE);
-                    usernameOKLabel.setText("Logged in!");
-                    MainWindow.INSTANCE.getFrame().setLogged(true);
-                    MainWindow.INSTANCE.getFrame().setSession(username, password, token);
-                } else {
+            String username = usernameField.getText().toLowerCase();
+            char[] password = passwordFiled.getPassword();
+
+            Response response = client.login(username, new String(password));
+
+            try {
+                /* username does not exist */
+                if (response.getContent().matches("Username [\\w|\\d]+ not found.")) {
                     usernameOKLabel.setForeground(Color.RED);
-                    usernameOKLabel.setText("unable to log in");
+                    usernameOKLabel.setText("username not found");
+                    return;
                 }
+            } catch (NullPointerException e) {
+                usernameOKLabel.setForeground(Color.RED);
+                usernameOKLabel.setText("unable to log in");
+                return;
+            }
+
+            String token = response.getContent();
+            if (token != null) {
+                usernameOKLabel.setForeground(Color.BLUE);
+                usernameOKLabel.setText("Logged in!");
+                MainWindow.INSTANCE.getFrame().setLogged(true);
+                MainWindow.INSTANCE.getFrame().setSession(username, password, token);
+                MainWindow.INSTANCE.getFrame().setForm(new HomeForm().mainHolePanel);
+            } else {
+                usernameOKLabel.setForeground(Color.RED);
+                usernameOKLabel.setText("unable to log in");
             }
         });
         createAccountButton.addActionListener(actionEvent -> {

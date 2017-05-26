@@ -6,6 +6,7 @@ import ud.binmonkey.prog3_proyecto_client.common.network.URI;
 import javax.net.ssl.HttpsURLConnection;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class HTTPSClient {
     private String host = URI.getHost("https-client");
@@ -25,11 +26,11 @@ public class HTTPSClient {
      * @return token if succeeded, null if it did not
      * @throws IOException login failed
      */
-    public String login(String userName, String passWord) {
+    public Response login(String userName, String passWord) {
         ArrayList<Pair> args = new ArrayList<>();
         try {
-            return HTTPS.sendRequest("https://" + host, port, "/login", Methods.POST, null, null,
-                    new Pair<>("username", userName), new Pair<>("password", passWord)).getContent();
+            return HTTPS.sendRequest("https://" + host, port, "/login", Methods.GET, null, null,
+                    new Pair<>("username", userName), new Pair<>("password", passWord));
         } catch (IOException e) {
             return null;
         }
@@ -42,6 +43,46 @@ public class HTTPSClient {
         } catch (IOException e) {
             return null;
         }
+    }
+
+    public Response signUp(String userName, String password, String displayName, String email, String birthdate,
+                         String gender, String preferred_lang) {
+        HashMap<String, String> args = new HashMap<String, String>() {{
+            put("username", userName);
+            put("password", password);
+            put("display_name", displayName);
+            put("email", email);
+            put("birth_date", birthdate);
+            put("gender", gender);
+            put("preferred_language", preferred_lang);
+        }};
+
+        for (String key: args.keySet()) {
+            if (args.get(key) == null || args.keySet().equals("")) {
+                args.remove(key);
+            }
+        }
+
+        Pair[] pairs = new Pair[args.size()];
+
+        int i = 0;
+        for (String key: args.keySet()) {
+            pairs[i] = new Pair(key, args.get(key));
+            i++;
+        }
+
+        try {
+            return HTTPS.sendRequest("https://" + host, port, "/signUp", Methods.POST,
+                    null, null, pairs);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public Response signUp(String userName, char[] password, String displayName, String email, String birthdate,
+                         String gender, String preferred_lang) {
+        return signUp(userName, new String(password), displayName, email, birthdate, gender, preferred_lang);
     }
 
     public String userInfo(String userName, String token) {
@@ -71,7 +112,7 @@ public class HTTPSClient {
         String userName = "WonderWoman";
         String passWord = "MYHMJDG4";
         HTTPSClient httpsClient = new HTTPSClient();
-        String token = httpsClient.login(userName, passWord);
+        String token = httpsClient.login(userName, passWord).getContent();
         if (token == null) {
             System.out.println("Login failed.");
         }

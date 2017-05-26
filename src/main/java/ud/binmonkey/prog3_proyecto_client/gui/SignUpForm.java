@@ -1,12 +1,24 @@
 package ud.binmonkey.prog3_proyecto_client.gui;
 
+import ud.binmonkey.prog3_proyecto_client.common.Validator;
+import ud.binmonkey.prog3_proyecto_client.https.HTTPSClient;
+import ud.binmonkey.prog3_proyecto_client.https.Response;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.Arrays;
 
+/*
+            if (response.getContent().matches("Username [\\w|\\d]+ already found.")) {
+                usernameOKLabel.setForeground(Color.RED);
+                usernameOKLabel.setText("username already taken");
+                return;
+            }
+ */
 public class SignUpForm {
     public JPanel mainSignUpPanel;
     public JButton LogInButton;
@@ -15,7 +27,6 @@ public class SignUpForm {
     public JTextField usernameField;
     public JTextField displayNameField;
     public JPasswordField passwordField;
-    public JTextField repeatPasswordField;
     public JLabel usernameLabel;
     public JLabel displayNameLabel;
     public JLabel passwordLabel;
@@ -23,7 +34,7 @@ public class SignUpForm {
     public JLabel compulsoryLabel;
     public JLabel optionalLabel;
     public JLabel emailLabel;
-    public JTextField textField1;
+    public JTextField emailField;
     public JComboBox dayBox;
     public JComboBox monthBox;
     public JComboBox yearBox;
@@ -40,21 +51,29 @@ public class SignUpForm {
     public JLabel displayNameInfoLabel;
     public JLabel birthDateOKLabel;
     public JPasswordField repeatField;
+    private JTextField langTextField;
+    private JLabel langInfoLabel;
+    private JLabel langLabel;
+    private JLabel infoLabel;
 
     public int[] month31 = new int[]{1, 3, 5, 7, 8, 10, 12};
     public int[] month30 = new int[]{4, 6, 9, 11};
 
+    /**
+     * Default constuctor
+     */
     public SignUpForm() {
+        /* set title */
         try {
             MainWindow.INSTANCE.getFrame().setTitle("Sign Up");
         } catch (NullPointerException e) {
         }
 
+        /* calendar settings */
         for (int i = 2000; i > 1910; i--) {
             yearBox.addItem(i);
         }
         yearBox.setSelectedIndex(0);
-        /* yearBox.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, null)); */
 
         for (int i = 1; i < 13; i++) {
             monthBox.addItem(i);
@@ -66,76 +85,145 @@ public class SignUpForm {
         }
         dayBox.setSelectedIndex(0);
 
-
+        /* switch to login form */
         LogInButton.addActionListener(actionEvent -> MainWindow.INSTANCE.getFrame().setForm(new LoginForm().mainLoginPanel));
+
+        /* set correct month days*/
         monthBox.addActionListener(actionEvent -> {
-            if ((Integer) monthBox.getSelectedItem() == 2) {
-                dayBox.removeAllItems();
-                for (int i = 1; i < 29; i++) {
-                    dayBox.addItem(i);
-                }
-                if ((Integer) yearBox.getSelectedItem() % 4 == 0) {
-                    dayBox.addItem(29);
-                }
-            } else {
-                for (int i : month30) {
-                    if (i == (Integer) monthBox.getSelectedItem()) {
-                        for (int j = 1; j < 30; j++) {
-                            dayBox.addItem(j);
-                        }
-                    }
-                }
-                for (int i : month30) {
-                    if (i == (Integer) monthBox.getSelectedItem()) {
-                        for (int j = 1; j < 30; j++) {
-                            dayBox.addItem(j);
-                        }
-                    }
-                }
-            }
-            dayBox.setSelectedIndex(0);
-        });
-        yearBox.addActionListener(actionEvent -> {
-            if ((Integer) monthBox.getSelectedItem() == 2) {
-                dayBox.removeAllItems();
-                for (int i = 1; i < 29; i++) {
-                    dayBox.addItem(i);
-                }
-                if ((Integer) yearBox.getSelectedItem() % 4 == 0) {
-                    dayBox.addItem(29);
-                }
+            int currentDay = (Integer) dayBox.getSelectedItem();
+            reloadDaysMonths();
+            try {
+                dayBox.setSelectedItem(currentDay);
+            } catch (Exception e) {
                 dayBox.setSelectedIndex(0);
-            } else {
-                for (int i : month30) {
-                    if (i == (Integer) monthBox.getSelectedItem()) {
-                        for (int j = 1; j < 30; j++) {
-                            dayBox.addItem(j);
-                        }
-                    }
-                }
-                for (int i : month31) {
-                    if (i == (Integer) monthBox.getSelectedItem()) {
-                        for (int j = 1; j < 30; j++) {
-                            dayBox.addItem(j);
-                        }
-                    }
-                }
             }
-        });
-        usernameField.addKeyListener(new KeyAdapter() {
         });
 
+        /* set correct month days for february */
+        yearBox.addActionListener(actionEvent -> {
+            int currentDay = (Integer) dayBox.getSelectedItem();
+            reloadDaysMonths();
+            try {
+                dayBox.setSelectedItem(currentDay);
+            } catch (Exception e) {
+                dayBox.setSelectedIndex(0);
+            }
+        });
+
+        /* check validity of username */
+        usernameField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent keyEvent) {
+                super.keyTyped(keyEvent);
+                if (Validator.validName(usernameField.getText().toLowerCase())) {
+                    usernameOKLabel.setForeground(Color.GREEN);
+                    usernameOKLabel.setText("valid name!");
+                } else {
+                    usernameOKLabel.setForeground(Color.RED);
+                    usernameOKLabel.setText("invalid username");
+                }
+            }
+        });
+
+        /* check if passwords are equal */
         repeatField.addKeyListener(new KeyAdapter() {
             @Override
-            public void keyTyped(KeyEvent keyEvent) {
+            public void keyReleased(KeyEvent keyEvent) {
                 super.keyTyped(keyEvent);
-                if (repeatField.getPassword().equals(passwordField.getPassword())) {
+                if (Arrays.equals(passwordField.getPassword(), repeatField.getPassword())) {
                     repeatPasswordOkLabel.setText("passwords match");
                 } else {
                     repeatPasswordOkLabel.setText("passwords don't match");
                 }
             }
         });
+
+        /* check correctness of fields, call @HTTPSClient.sinUp method */
+        SignUpButton.addActionListener(actionEvent -> {
+
+            if (!equalPasswords(passwordField.getPassword(), repeatField.getPassword())) {
+                repeatPasswordOkLabel.setForeground(Color.RED);
+                repeatPasswordOkLabel.setText("passwords don't match");
+                return;
+            }
+
+            if (!Validator.validEmail(emailField.getText())) {
+                emailOKlabel.setForeground(Color.RED);
+                emailOKlabel.setText("not a valid email");
+                return;
+            }
+
+            String username = usernameField.getText();
+            char[] password = passwordField.getPassword();
+            String email = emailField.getText();
+            String display_name = displayNameField.getText();
+            String gender = genderField.getText();
+            String preferred_lang = langTextField.getText();
+            String birthdate = null;
+
+            if (dayBox.getSelectedItem() != null && monthBox.getSelectedItem() != null && yearBox.getSelectedItem() != null) {
+                birthdate = dayBox.getSelectedIndex() + "" + monthBox.getSelectedItem() + "" + yearBox.getSelectedItem();
+            }
+
+            HTTPSClient client = new HTTPSClient();
+            Response response = client.signUp(username, password, display_name, email, birthdate, gender, preferred_lang);
+            if (response != null) {
+                /* success */
+                infoLabel.setText("Success! log in to your new account:");
+            } else {
+                infoLabel.setText("unable to create account");
+            }
+        });
+
+        /* check validity of email */
+        emailField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent keyEvent) {
+                super.keyReleased(keyEvent);
+                if (!Validator.validEmail(emailField.getText())) {
+                    emailOKlabel.setForeground(Color.RED);
+                    emailOKlabel.setText("not a valid email");
+                } else {
+                    emailOKlabel.setForeground(Color.GREEN);
+                    emailOKlabel.setText("valid email!");
+                }
+            }
+        });
+    }
+
+    /* sets day numbers depending on month, feb has 29 days if year % 4 == 0 */
+    public void reloadDaysMonths() {
+        dayBox.removeAllItems();
+        if ((Integer) monthBox.getSelectedItem() == 2) {
+            for (int i = 1; i < 29; i++) {
+                dayBox.addItem(i);
+            }
+            if ((Integer) yearBox.getSelectedItem() % 4 == 0) {
+                dayBox.addItem(29);
+            }
+            return;
+        } else {
+            for (int i : month30) {
+                if (i == (Integer) monthBox.getSelectedItem()) {
+                    for (int j = 1; j < 31; j++) {
+                        dayBox.addItem(j);
+                    }
+                    return;
+                }
+            }
+            for (int i : month31) {
+                if (i == (Integer) monthBox.getSelectedItem()) {
+                    for (int j = 1; j < 32; j++) {
+                        dayBox.addItem(j);
+                    }
+                    return;
+                }
+            }
+        }
+    }
+
+    public boolean equalPasswords(char[] pass1, char[] pass2) {
+        return Arrays.equals(pass1, pass2);
     }
 
     public static void main(String[] args) {
@@ -225,7 +313,7 @@ public class SignUpForm {
         gbc.gridx = 2;
         gbc.gridy = 8;
         gbc.gridwidth = 3;
-        gbc.anchor = GridBagConstraints.WEST;
+        gbc.anchor = GridBagConstraints.EAST;
         attributesPanel.add(repeatPasswordLabel, gbc);
         compulsoryLabel = new JLabel();
         compulsoryLabel.setForeground(new Color(-9539986));
@@ -268,13 +356,13 @@ public class SignUpForm {
         gbc.gridwidth = 3;
         gbc.anchor = GridBagConstraints.EAST;
         attributesPanel.add(emailLabel, gbc);
-        textField1 = new JTextField();
+        emailField = new JTextField();
         gbc = new GridBagConstraints();
         gbc.gridx = 6;
         gbc.gridy = 4;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        attributesPanel.add(textField1, gbc);
+        attributesPanel.add(emailField, gbc);
         final JLabel label2 = new JLabel();
         label2.setText("birth date");
         gbc = new GridBagConstraints();
@@ -368,7 +456,7 @@ public class SignUpForm {
         SignUpButton.setText("Sign Up");
         gbc = new GridBagConstraints();
         gbc.gridx = 6;
-        gbc.gridy = 18;
+        gbc.gridy = 20;
         attributesPanel.add(SignUpButton, gbc);
         final JPanel spacer3 = new JPanel();
         gbc = new GridBagConstraints();
@@ -452,7 +540,7 @@ public class SignUpForm {
         final JPanel spacer15 = new JPanel();
         gbc = new GridBagConstraints();
         gbc.gridx = 2;
-        gbc.gridy = 17;
+        gbc.gridy = 19;
         gbc.gridwidth = 3;
         gbc.fill = GridBagConstraints.VERTICAL;
         attributesPanel.add(spacer15, gbc);
@@ -494,6 +582,48 @@ public class SignUpForm {
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         attributesPanel.add(repeatField, gbc);
+        final JPanel spacer21 = new JPanel();
+        gbc = new GridBagConstraints();
+        gbc.gridx = 10;
+        gbc.gridy = 12;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        attributesPanel.add(spacer21, gbc);
+        langLabel = new JLabel();
+        langLabel.setText("preferred_language");
+        gbc = new GridBagConstraints();
+        gbc.gridx = 4;
+        gbc.gridy = 18;
+        gbc.anchor = GridBagConstraints.EAST;
+        attributesPanel.add(langLabel, gbc);
+        final JPanel spacer22 = new JPanel();
+        gbc = new GridBagConstraints();
+        gbc.gridx = 4;
+        gbc.gridy = 17;
+        gbc.fill = GridBagConstraints.VERTICAL;
+        attributesPanel.add(spacer22, gbc);
+        langTextField = new JTextField();
+        langTextField.setText("EN");
+        gbc = new GridBagConstraints();
+        gbc.gridx = 6;
+        gbc.gridy = 18;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        attributesPanel.add(langTextField, gbc);
+        langInfoLabel = new JLabel();
+        langInfoLabel.setForeground(new Color(-10066330));
+        langInfoLabel.setText("FR, EN, ES, EU...");
+        gbc = new GridBagConstraints();
+        gbc.gridx = 9;
+        gbc.gridy = 18;
+        gbc.anchor = GridBagConstraints.WEST;
+        attributesPanel.add(langInfoLabel, gbc);
+        infoLabel = new JLabel();
+        infoLabel.setText("");
+        gbc = new GridBagConstraints();
+        gbc.gridx = 9;
+        gbc.gridy = 20;
+        gbc.anchor = GridBagConstraints.WEST;
+        attributesPanel.add(infoLabel, gbc);
     }
 
     /**

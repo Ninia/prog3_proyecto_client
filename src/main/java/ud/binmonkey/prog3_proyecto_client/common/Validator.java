@@ -12,4 +12,8 @@ public class Validator {
         return !m.find();
     }
 
+    public static boolean validEmail(String email) {
+        return email.matches("[\\w|\\d]+@[\\w|\\d]+\\.[\\w]+");
+    }
+
 }

@@ -32,7 +32,7 @@ public enum MainWindow {
             this.setJMenuBar(menuBar);
             super.setContentPane(new MainPanel());
             setDefaultCloseOperation(EXIT_ON_CLOSE);
-            setMinimumSize(new Dimension(600, 400));
+            setMinimumSize(new Dimension(800, 600));
             this.setLastComponent(new LoginForm().mainLoginPanel);
             getContentPane().add(getLastComponent(), BorderLayout.CENTER);
         }
