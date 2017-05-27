@@ -1,5 +1,6 @@
 package ud.binmonkey.prog3_proyecto_client.https;
 
+import org.json.JSONObject;
 import ud.binmonkey.prog3_proyecto_client.common.Pair;
 import ud.binmonkey.prog3_proyecto_client.common.network.URI;
 
@@ -107,10 +108,35 @@ public class HTTPSClient {
         }
     }
 
+    public Response listDir(String userName, String directory, String token) {
+        Pair[] pairs;
+        if (directory == "" || directory == null) {
+            pairs = new Pair[] {new Pair("username", userName), new Pair("token", token)};
+        } else {
+            pairs = new Pair[] {new Pair("username", userName), new Pair("token", token),
+                    new Pair("directory", directory)};
+        }
+
+        try {
+            return HTTPS.sendRequest("https://" + host, port, "/listDir", Methods.GET,
+                    null, null, pairs);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public JSONObject parseDirResponse(Response response) {
+        if (response == null) {
+            return null;
+        }
+        return new JSONObject(response.getContent());
+    }
+
 
     public static void main(String[] args) {
-        String userName = "WonderWoman";
-        String passWord = "MYHMJDG4";
+        String userName = "test";
+        String passWord = "test";
         HTTPSClient httpsClient = new HTTPSClient();
         String token = httpsClient.login(userName, passWord).getContent();
         if (token == null) {
@@ -121,6 +147,7 @@ public class HTTPSClient {
         System.out.println(httpsClient.userInfo(userName, token));
         System.out.println(httpsClient.changeProperty(userName, "birth_date", "23-10-1990", token));
         System.out.println(httpsClient.userInfo(userName, token));
+        System.out.println(httpsClient.parseDirResponse(httpsClient.listDir(userName, null, token)));
 
         /* Uncomment the following lines to check user token expiration */
         /*
