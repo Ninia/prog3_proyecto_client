@@ -130,10 +130,10 @@ public enum MainWindow {
      * Resets window
      */
     public void Logout() {
-        if (this.getFrame().isLogged()) {
-            this.setFrame(new MainFrame());
-            System.out.println(this.frame.getUser());
-        }
+        this.getFrame().dispose();
+        this.setFrame(new MainFrame());
+        this.getFrame().pack();
+        this.getFrame().setVisible(true);
     }
 
     /*

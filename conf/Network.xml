@@ -4,6 +4,10 @@
         <host>localhost</host>
         <port>8080</port>
     </https-client>
+    <ftp>
+        <host>localhost</host>
+        <port>8022</port>
+    </ftp>
     <test-client>
         <port>[port number]</port>
     </test-client>

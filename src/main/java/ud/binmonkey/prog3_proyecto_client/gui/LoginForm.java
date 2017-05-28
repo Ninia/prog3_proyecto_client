@@ -71,7 +71,7 @@ public class LoginForm {
                 usernameOKLabel.setText("Logged in!");
                 MainWindow.INSTANCE.getFrame().setLogged(true);
                 MainWindow.INSTANCE.getFrame().setSession(username, password, token);
-                MainWindow.INSTANCE.getFrame().setForm(new HomeForm().mainHolePanel);
+                MainWindow.INSTANCE.getFrame().setForm(new HomeForm().mainHomePanel);
             } else {
                 usernameOKLabel.setForeground(Color.RED);
                 usernameOKLabel.setText("unable to log in");
