@@ -43,10 +43,16 @@
             <properties/>
             <border type="none"/>
             <children>
-              <component id="559a0" class="javax.swing.JButton" binding="uploadButton">
+              <component id="f9283" class="javax.swing.JButton" binding="mkdirButton">
                 <constraints/>
                 <properties>
-                  <text value="upload"/>
+                  <text value="create dir"/>
+                </properties>
+              </component>
+              <component id="7ff3b" class="javax.swing.JButton" binding="reloadButton">
+                <constraints/>
+                <properties>
+                  <text value="reload"/>
                 </properties>
               </component>
               <component id="d1b77" class="javax.swing.JButton" binding="renameButton">
@@ -55,16 +61,18 @@
                   <text value="rename"/>
                 </properties>
               </component>
-              <component id="13de1" class="javax.swing.JButton" binding="mkdirButton">
+              <component id="559a0" class="javax.swing.JButton" binding="uploadButton">
                 <constraints/>
                 <properties>
-                  <text value="remove"/>
+                  <background color="-16752771"/>
+                  <text value="upload"/>
                 </properties>
               </component>
-              <component id="f9283" class="javax.swing.JButton" binding="removeButton">
+              <component id="13de1" class="javax.swing.JButton" binding="removeButton">
                 <constraints/>
                 <properties>
-                  <text value="create dir"/>
+                  <background color="-8571609"/>
+                  <text value="remove"/>
                 </properties>
               </component>
             </children>

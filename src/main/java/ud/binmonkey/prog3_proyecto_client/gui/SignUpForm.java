@@ -6,19 +6,11 @@ import ud.binmonkey.prog3_proyecto_client.https.Response;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.Arrays;
 
-/*
-            if (response.getContent().matches("Username [\\w|\\d]+ already found.")) {
-                usernameOKLabel.setForeground(Color.RED);
-                usernameOKLabel.setText("username already taken");
-                return;
-            }
- */
+@SuppressWarnings({"WeakerAccess", "unchecked"})
 public class SignUpForm {
     public JPanel mainSignUpPanel;
     public JButton LogInButton;
@@ -67,6 +59,7 @@ public class SignUpForm {
         try {
             MainWindow.INSTANCE.getFrame().setTitle("Sign Up");
         } catch (NullPointerException e) {
+            /* Expected to happen at creation of @MainFrame */
         }
 
         /* calendar settings */
@@ -167,9 +160,18 @@ public class SignUpForm {
 
             HTTPSClient client = new HTTPSClient();
             Response response = client.signUp(username, password, display_name, email, birthdate, gender, preferred_lang);
+
+            /*
+             * TODO: does @HTTPSClient.signUp return null even if response was provided?
+             */
             if (response != null) {
-                /* success */
-                infoLabel.setText("Success! log in to your new account:");
+                if (response.getContent().matches("Username [\\w|\\d]+ already found.")) {
+                    usernameOKLabel.setForeground(Color.RED);
+                    usernameOKLabel.setText("username already taken");
+                } else {
+                   /* success */
+                    infoLabel.setText("Success! log in to your new account:");
+                }
             } else {
                 infoLabel.setText("unable to create account");
             }
@@ -201,7 +203,6 @@ public class SignUpForm {
             if ((Integer) yearBox.getSelectedItem() % 4 == 0) {
                 dayBox.addItem(29);
             }
-            return;
         } else {
             for (int i : month30) {
                 if (i == (Integer) monthBox.getSelectedItem()) {

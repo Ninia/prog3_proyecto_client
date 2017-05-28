@@ -9,6 +9,7 @@ import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
+@SuppressWarnings({"WeakerAccess", "CodeBlock2Expr"})
 public class LoginForm {
     public JPanel mainLoginPanel;
     public JPanel attributesPanel;
@@ -26,6 +27,7 @@ public class LoginForm {
         try {
             MainWindow.INSTANCE.getFrame().setTitle("Log In");
         } catch (NullPointerException e) {
+            /* Expected to happen at creation of @MainFrame */
         }
 
         /* check validity of username */

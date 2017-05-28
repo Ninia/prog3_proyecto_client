@@ -42,10 +42,12 @@ public enum MainWindow {
          * @param panel panel to switch to
          */
         public void setForm(JPanel panel) {
+            Dimension size = this.getSize();
             this.getContentPane().remove(lastComponent);
             this.setLastComponent(panel);
             this.getContentPane().add(panel, BorderLayout.CENTER);
-            this.pack();
+            this.pack(); /* required for some jpanels to show all components after change */
+            this.setSize(size);
             this.repaint();
         }
 
@@ -130,9 +132,13 @@ public enum MainWindow {
      * Resets window
      */
     public void Logout() {
+        Point location = this.getFrame().getLocation();
+        Dimension size = this.getFrame().getSize();
         this.getFrame().dispose();
         this.setFrame(new MainFrame());
         this.getFrame().pack();
+        this.getFrame().setLocation(location);
+        this.getFrame().setSize(size);
         this.getFrame().setVisible(true);
     }
 

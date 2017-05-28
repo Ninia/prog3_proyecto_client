@@ -6,9 +6,9 @@ import ud.binmonkey.prog3_proyecto_client.common.network.URI;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 
+@SuppressWarnings({"WeakerAccess", "SameParameterValue"})
 public class HTTPSClient {
     private String host = URI.getHost("https-client");
     private int port = URI.getPort("https-client");
@@ -25,10 +25,8 @@ public class HTTPSClient {
      * @param userName username
      * @param passWord password of user with username
      * @return token if succeeded, null if it did not
-     * @throws IOException login failed
      */
     public Response login(String userName, String passWord) {
-        ArrayList<Pair> args = new ArrayList<>();
         try {
             return HTTPS.sendRequest("https://" + host, port, "/login", Methods.GET, null, null,
                     new Pair<>("username", userName), new Pair<>("password", passWord));
@@ -108,9 +106,10 @@ public class HTTPSClient {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public Response listDir(String userName, String directory, String token) {
         Pair[] pairs;
-        if (directory == "" || directory == null) {
+        if (directory == null || directory.equals("")) {
             pairs = new Pair[] {new Pair("username", userName), new Pair("token", token)};
         } else {
             pairs = new Pair[] {new Pair("username", userName), new Pair("token", token),

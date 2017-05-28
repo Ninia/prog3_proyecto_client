@@ -14,6 +14,14 @@ public class FTPlib {
     private static String host = URI.getHost("ftp");
     private static int port = URI.getPort("ftp");
 
+    /**
+     * Upload a file to the FTP server
+     * @param userName username of user who will upload the file
+     * @param password password of user
+     * @param file path to file that will be uploaded
+     * @param targetDirectory server directory in which the file will be stored
+     * @throws IOException FTP or connection error
+     */
     public static void uploadFile(String userName, String password, String file, String targetDirectory) throws IOException {
 
         if (targetDirectory == null) {
@@ -41,13 +49,32 @@ public class FTPlib {
         client.storeFile(file, is);
     }
 
-    public static FTPClient logIn(String userName, String password) throws IOException {
+    /**
+     * ACCESS IS PRIVATE SO ALL FTP CALLS ARE DEFINED IN THIS CLASS AND CALLED FROM WHEREVER
+     * Returns logged in client.
+     *
+     * @param userName username to log in with
+     * @param password password
+     * @return logged in @FTPClient if success, null if false
+     * @throws IOException FTP or connection error
+     */
+    private static FTPClient logIn(String userName, String password) throws IOException {
         FTPClient client = new FTPClient();
         client.connect(host, port);
         client.login(userName, password);
         return client;
     }
 
+    /**
+     * Rename a file on the FTP server
+     * @param username username of the user that will rename the file
+     * @param password password of user
+     * @param oldFile old name of file
+     * @param newFile new name of file
+     * @param sameDir if true the file will change name but not directory
+     * @throws IOException FTP or connection error
+     */
+    @SuppressWarnings("SameParameterValue") /* sameDir is expected to eventually be false */
     public static void rename(String username, String password, String oldFile, String newFile, boolean sameDir)
             throws IOException {
 
@@ -68,15 +95,26 @@ public class FTPlib {
         client.rename(oldFile, newFile);
     }
 
+    /**
+     * Delete a file or directory  in the FTP server
+     * @param username username of the user that will delete the file or directory
+     * @param password password of user
+     * @param file file to be deleted
+     * @throws IOException FTP or connection error
+     */
     public static void delete(String username, String password, String file) throws IOException {
         FTPClient client = logIn(username, password);
-        try {
-            client.deleteFile(file);
-        } catch (IOException e) {
-            client.removeDirectory(file);
-        }
+        client.deleteFile(file);
+        client.removeDirectory(file);
     }
 
+    /**
+     * Create a new directory in the FTP server
+     * @param username username of the user that will crate the directory
+     * @param password password of user
+     * @param dirname name of new directory
+     * @throws IOException FTP or connection error
+     */
     public static void mkdir(String username, String password, String dirname) throws IOException {
         FTPClient client = logIn(username, password);
         client.makeDirectory(dirname);
