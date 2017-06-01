@@ -2,6 +2,7 @@ package ud.binmonkey.prog3_proyecto_client.omdb;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import ud.binmonkey.prog3_proyecto_client.common.DocumentReader;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -17,6 +18,10 @@ import java.util.Scanner;
  */
 public class Omdb {
 
+    private static final String keyFile = "conf/keys.xml";
+    private static final String KEY = DocumentReader.getAttr(DocumentReader.getDoc(keyFile),
+            "omdb").getTextContent().replaceAll("\n", "").replaceAll(" ", "");
+    private static final String apikey = "&apikey=" + KEY;
     private static String url = "";
 
     /**
@@ -33,9 +38,10 @@ public class Omdb {
             HashMap search_results = new HashMap<String, HashMap>();
 
             if (!type.equals(MediaType.ALL))
-                url = "http://www.omdbapi.com/?s=" + title.replace(" ", "%20") + "&type=" + type.name();
+                url = "http://www.omdbapi.com/?s=" + title.replace(" ", "%20") +
+                        "&type=" + type.name() + apikey;
             else
-                url = "http://www.omdbapi.com/?s=" + title.replace(" ", "%20");
+                url = "http://www.omdbapi.com/?s=" + title.replace(" ", "%20") + apikey;
 
             URL query = new URL(url);
 
@@ -79,7 +85,7 @@ public class Omdb {
 
         try {
 
-            url = "http://www.omdbapi.com/?i=" + id + "&plot=full";
+            url = "http://www.omdbapi.com/?i=" + id + "&plot=full" + apikey;
 
             URL query = new URL(url);
 
@@ -88,6 +94,41 @@ public class Omdb {
 
             return title.toMap();
 
+        } catch (MalformedURLException e) {
+            System.err.println("Malformed URL: " + url);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println(Omdb.apikey);
+        return null;
+    }
+
+    /**
+     * Gets the type from a IMDB Title
+     *
+     * @param id - IMDB Title to search for
+     * @return - Type
+     */
+    public static MediaType getType(String id) {
+
+        try {
+
+            url = "http://www.omdbapi.com/?i=" + id + apikey;
+
+            URL query = new URL(url);
+
+            Scanner s = new Scanner(query.openStream());
+            JSONObject title = new JSONObject(s.nextLine());
+
+            String type = (String) title.get("Type");
+
+            if (MediaType.MOVIE.equalsName(type)) {
+                return MediaType.MOVIE;
+            } else if (MediaType.SERIES.equalsName(type)) {
+                return MediaType.SERIES;
+            } else if (MediaType.EPISODE.equalsName(type)) {
+                return MediaType.EPISODE;
+            }
         } catch (MalformedURLException e) {
             System.err.println("Malformed URL: " + url);
         } catch (IOException e) {

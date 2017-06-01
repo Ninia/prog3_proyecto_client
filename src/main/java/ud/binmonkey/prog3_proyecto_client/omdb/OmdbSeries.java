@@ -5,6 +5,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Map;
 
+import static org.neo4j.driver.v1.Values.parameters;
+
 public class OmdbSeries extends OmdbTitle {
 
     private int seasons;
@@ -15,37 +17,64 @@ public class OmdbSeries extends OmdbTitle {
     private ArrayList country;
 
     /**
-     * Constructor for the class OMDBMovie that extends from OMDBTitle
+     * Constructor for the class OmdbEpisode that extends from OmdbTitle
      *
-     * @param id - IMDB id of the Movie
+     * @param series - Map with the info of the Episode
      */
-    public OmdbSeries(String id) {
+    public OmdbSeries(Map series) {
 
-        super(Omdb.getTitle(id));
-        Map series = Omdb.getTitle(id);
+        super(series);
 
         this.seasons = JSONFormatter.intergerConversor(series.get("totalSeasons"));
         this.language = JSONFormatter.listFormatter(series.get("Language"));
         this.genre = JSONFormatter.listFormatter(series.get("Genre"));
-        this.producers.add("Placeholder"); /* TODO Placeholder */
+        this.producers.add("placeholder"); /* TODO this is a placeholder */
         this.country = JSONFormatter.listFormatter(series.get("Country"));
     }
 
+    /* Format Conversion Methods */
+
+    /**
+     * @return Return information in org.neo4j.driver.v1.Values.parameters format
+     */
+    public Object toParameters() {
+        return parameters(
+                "title", title,
+                "name", imdbID,
+                "year", year,
+                "seasons", seasons,
+                "released", released.toString(),
+                "plot", plot,
+                "awards", awards,
+                "metascore", metascore,
+                "imdbRating", imdbRating,
+                "imdbVotes", imdbVotes,
+                "runtime", runtime,
+                "poster", poster);
+    }
+
+    /**
+     * @return Return information in JSON format
+     */
     public JSONObject toJSON() {
 
         JSONObject episodeJSON = super.toJSON();
 
-        episodeJSON.put("seasons", seasons);
-
-        episodeJSON.put("language", language);
-        episodeJSON.put("genre", genre);
-        episodeJSON.put("producers", producers);
-        episodeJSON.put("country", country);
+        episodeJSON.put("totalSeasons", seasons);
+        episodeJSON.put("Language", language);
+        episodeJSON.put("Genre", genre);
+        episodeJSON.put("Production", producers);
+        episodeJSON.put("Country", country);
 
         return episodeJSON;
     }
+    /* END Format Conversion Methods */
 
     /* Getters */
+
+    public Enum getType() {
+        return MediaType.SERIES;
+    }
 
     public ArrayList getLanguage() {
         return language;
@@ -63,23 +92,5 @@ public class OmdbSeries extends OmdbTitle {
         return country;
     }
 
-    /* Overridden Methods */
-    @Override
-    public String toString() {
-        return "OmdbMovie:\n" +
-                "\tTitle=" + title + "\n" +
-                "\tIMDB ID=" + imdbID + "\n" +
-                "\tYear=" + year + "\n" +
-                "\tReleased=" + released + "\n" +
-                "\tPlot=" + plot + "\n" +
-                "\tRated=" + ageRating + "\n" +
-                "\tAward=" + awards + "\n" +
-                "\tMetascore=" + metascore + "\n" +
-                "\tIMDB Rating=" + imdbRating + "\n" +
-                "\tIMDB Votes=" + imdbVotes + "\n" +
-                "\tRuntime=" + runtime + "\n" +
-                "\tPoster=" + poster + "\n" +
-                "\tLanguage=" + language + "\n" +
-                "\tGenre=" + genre + "\n";
-    }
+    /* END Getters */
 }

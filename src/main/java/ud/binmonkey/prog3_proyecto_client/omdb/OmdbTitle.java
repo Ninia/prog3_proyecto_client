@@ -1,6 +1,7 @@
 package ud.binmonkey.prog3_proyecto_client.omdb;
 
 import org.json.JSONObject;
+import ud.binmonkey.prog3_proyecto_client.common.time.DateUtils;
 
 import java.util.Date;
 import java.util.Map;
@@ -35,28 +36,26 @@ public class OmdbTitle {
         this.poster = (String) title.get("Poster");
     }
 
-    /**/
     public JSONObject toJSON() {
 
         JSONObject episodeJSON = new JSONObject();
 
-        episodeJSON.put("title", title);
-        episodeJSON.put("name", imdbID);
-        episodeJSON.put("year", year);
-        episodeJSON.put("released", released.toString());
-        episodeJSON.put("plot", plot);
-        episodeJSON.put("rated", ageRating);
-        episodeJSON.put("awards", awards);
-        episodeJSON.put("metascore", metascore);
+        episodeJSON.put("Title", title);
+        episodeJSON.put("imdbID", imdbID);
+        episodeJSON.put("Year", year);
+        episodeJSON.put("Released", DateUtils.dateFormatter(released));
+        episodeJSON.put("Plot", plot);
+        episodeJSON.put("Rated", ageRating);
+        episodeJSON.put("Awards", awards);
+        episodeJSON.put("Metascore", metascore);
         episodeJSON.put("imdbRating", imdbRating);
         episodeJSON.put("imdbVotes", imdbVotes);
-        episodeJSON.put("runtime", runtime);
-        episodeJSON.put("poster", poster);
+        episodeJSON.put("Runtime", runtime);
+        episodeJSON.put("Poster", poster);
 
         return episodeJSON;
     }
 
-    /**/
     /* Getters and Setters */
 
     public String getImdbID() {
@@ -79,21 +78,4 @@ public class OmdbTitle {
         return imdbVotes;
     }
 
-    /* Overridden Methods*/
-    @Override
-    public String toString() {
-        return "OmdbTitle:\n" +
-                "\tTitle=" + title + "\n" +
-                "\tIMDB ID=" + imdbID + "\n" +
-                "\tYear=" + year + "\n" +
-                "\tReleased=" + released + "\n" +
-                "\tPlot=" + plot + "\n" +
-                "\tRated=" + ageRating + "\n" +
-                "\tAward=" + awards + "\n" +
-                "\tMetascore=" + metascore + "\n" +
-                "\tIMDB Rating=" + imdbRating + "\n" +
-                "\tIMDB Votes=" + imdbVotes + "\n" +
-                "\tRuntime=" + runtime + "\n" +
-                "\tPoster=" + poster + "\n";
-    }
 }

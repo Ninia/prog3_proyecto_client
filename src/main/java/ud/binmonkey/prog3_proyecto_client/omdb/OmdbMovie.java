@@ -1,11 +1,14 @@
 package ud.binmonkey.prog3_proyecto_client.omdb;
 
 import org.json.JSONObject;
+import ud.binmonkey.prog3_proyecto_client.common.time.DateUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.neo4j.driver.v1.Values.parameters;
 
 public class OmdbMovie extends OmdbTitle {
 
@@ -23,21 +26,16 @@ public class OmdbMovie extends OmdbTitle {
     private ArrayList country;
 
     /**
-     * Constructor for the class OMDBMovie that extends from OMDBTitle
+     * Constructor for the class OmdbMovie that extends from OmdbTitle
      *
-     * @param id - IMDB id of the Movie
+     * @param movie - Map with the info of the Episode
      */
-    public OmdbMovie(String id) {
-
-        super(Omdb.getTitle(id));
-        Map movie = Omdb.getTitle(id);
+    public OmdbMovie(Map movie) {
+        super(movie);
 
         this.dvd = JSONFormatter.dateFormatter(movie.get("DVD"));
         this.boxOffice = JSONFormatter.doubleConversor(movie.get("BoxOffice"));
         this.website = (String) movie.get("Website");
-
-        this.ratings = JSONFormatter.scoreFormatter((ArrayList) movie.get("Ratings"));
-
         this.language = JSONFormatter.listFormatter(movie.get("Language"));
         this.genre = JSONFormatter.listFormatter(movie.get("Genre"));
         this.writer = JSONFormatter.listFormatter(movie.get("Writer"));
@@ -45,36 +43,63 @@ public class OmdbMovie extends OmdbTitle {
         this.actors = JSONFormatter.listFormatter(movie.get("Actors"));
         this.producers = JSONFormatter.listFormatter(movie.get("Production"));
         this.country = JSONFormatter.listFormatter(movie.get("Country"));
+
+        try {
+            this.ratings = (HashMap) movie.get("Ratings");
+        } catch (java.lang.ClassCastException e) { /* If it is not formatted */
+            this.ratings = JSONFormatter.scoreFormatter((ArrayList) movie.get("Ratings"));
+        }
     }
 
-    public static void main(String[] args) {
-        OmdbMovie omdbMovie = new OmdbMovie("tt0117951");
-        System.out.println(omdbMovie.toJSON());
+    /* Format Conversion Methods */
+
+    public Object toParameters() {
+        return parameters(
+                "title", title,
+                "name", imdbID,
+                "year", year,
+                "released", released.toString(),
+                "dvd", dvd.toString(),
+                "plot", plot,
+                "awards", awards,
+                "boxOffice", boxOffice,
+                "metascore", metascore,
+                "imdbRating", imdbRating,
+                "imdbVotes", imdbVotes,
+                "runtime", runtime,
+                "website", website,
+                "poster", poster);
     }
 
-    /* Methods */
+    /**
+     * @return Return information in JSON format
+     */
     public JSONObject toJSON() {
 
         JSONObject episodeJSON = super.toJSON();
 
-        episodeJSON.put("dvd", dvd.toString());
-        episodeJSON.put("boxOffice", boxOffice);
-        episodeJSON.put("website", website);
-
-        episodeJSON.put("ratings", ratings);
-        episodeJSON.put("language", language);
-        episodeJSON.put("genre", genre);
-        episodeJSON.put("writer", writer);
-        episodeJSON.put("director", director);
-        episodeJSON.put("actors", actors);
-        episodeJSON.put("producers", producers);
-        episodeJSON.put("country", country);
+        episodeJSON.put("DVD", DateUtils.dateFormatter(dvd));
+        episodeJSON.put("BoxOffice", boxOffice);
+        episodeJSON.put("Website", website);
+        episodeJSON.put("Ratings", ratings);
+        episodeJSON.put("Language", language);
+        episodeJSON.put("Genre", genre);
+        episodeJSON.put("Writer", writer);
+        episodeJSON.put("Director", director);
+        episodeJSON.put("Actors", actors);
+        episodeJSON.put("Production", producers);
+        episodeJSON.put("Country", country);
 
         return episodeJSON;
     }
-    /* END Methods */
+    /* END Format Conversion Methods */
 
     /* Getters */
+
+    public Enum getType() {
+        return MediaType.MOVIE;
+    }
+
     public HashMap getRatings() {
         return ratings;
     }
@@ -107,59 +132,4 @@ public class OmdbMovie extends OmdbTitle {
         return country;
     }
     /* END Getters*/
-
-    /* Overridden Methods */
-    @Override
-    /* TODO cleanup */
-    public String toString() {
-        System.out.println("OmdbMovie:\n" +
-                "\tTitle=" + title + "\n" +
-                "\tIMDB ID=" + imdbID + "\n" +
-                "\tYear=" + year + "\n" +
-                "\tReleased=" + released + "\n" +
-                "\tDVD=" + dvd + "\n" +
-                "\tBoxOffice=" + boxOffice + "\n" +
-                "\tPlot=" + plot + "\n" +
-                "\tRated=" + ageRating + "\n" +
-                "\tAward=" + awards + "\n" +
-                "\tMetascore=" + metascore + "\n" +
-                "\tIMDB Rating=" + imdbRating + "\n" +
-                "\tIMDB Votes=" + imdbVotes + "\n" +
-                "\tRuntime=" + runtime + "\n" +
-                "\tWebsite=" + website + "\n" +
-                "\tPoster=" + poster);
-                /* Movie Specific Values */
-        System.out.println("\tRatings:");
-        for (Object outlet : ratings.keySet()) {
-            System.out.println("\t\t" + outlet + " " + ratings.get(outlet));
-        }
-
-        System.out.println("\tLanguages:");
-        for (Object entry : language) {
-            System.out.println("\t\t" + entry);
-        }
-
-        System.out.println("\tGenres:");
-        for (Object entry : genre) {
-            System.out.println("\t\t" + entry);
-        }
-
-        System.out.println("\tWriters:");
-        for (Object entry : writer) {
-            System.out.println("\t\t" + entry);
-        }
-
-        System.out.println("\tDirectors:");
-        for (Object entry : director) {
-            System.out.println("\t\t" + entry);
-        }
-
-        System.out.println("\tActors:");
-        for (Object entry : actors) {
-            System.out.println("\t\t" + entry);
-        }
-
-        return "";
-    }
-    /* END Overridden Methods */
 }
