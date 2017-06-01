@@ -1,2 +1,4 @@
 .idea
 /prog3-proyecto_client.iml
+/install/ssl.sh
+/target/
