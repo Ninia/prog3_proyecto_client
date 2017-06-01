@@ -1,13 +1,10 @@
 package ud.binmonkey.prog3_proyecto_client.gui;
 
-import ud.binmonkey.prog3_proyecto_client.common.Validator;
-import ud.binmonkey.prog3_proyecto_client.https.HTTPSClient;
-import ud.binmonkey.prog3_proyecto_client.https.Response;
+import ud.binmonkey.prog3_proyecto_client.gui.listeners.common.UserNameFieldListener;
+import ud.binmonkey.prog3_proyecto_client.gui.listeners.signUpForm.*;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.util.Arrays;
 
 @SuppressWarnings({"WeakerAccess", "unchecked"})
@@ -43,10 +40,10 @@ public class SignUpForm {
     public JLabel displayNameInfoLabel;
     public JLabel birthDateOKLabel;
     public JPasswordField repeatField;
-    private JTextField langTextField;
-    private JLabel langInfoLabel;
-    private JLabel langLabel;
-    private JLabel infoLabel;
+    public JTextField langTextField;
+    public JLabel langInfoLabel;
+    public JLabel langLabel;
+    public JLabel infoLabel;
 
     public int[] month31 = new int[]{1, 3, 5, 7, 8, 10, 12};
     public int[] month30 = new int[]{4, 6, 9, 11};
@@ -79,118 +76,39 @@ public class SignUpForm {
         dayBox.setSelectedIndex(0);
 
         /* switch to login form */
-        LogInButton.addActionListener(actionEvent -> MainWindow.INSTANCE.getFrame().setForm(new LoginForm().mainLoginPanel));
+        LogInButton.addActionListener(
+            new LoginButtonListener(this)
+        );
 
         /* set correct month days*/
-        monthBox.addActionListener(actionEvent -> {
-            int currentDay = (Integer) dayBox.getSelectedItem();
-            reloadDaysMonths();
-            try {
-                dayBox.setSelectedItem(currentDay);
-            } catch (Exception e) {
-                dayBox.setSelectedIndex(0);
-            }
-        });
+        monthBox.addActionListener(
+            new MonthBoxListener(this)
+        );
 
         /* set correct month days for february */
-        yearBox.addActionListener(actionEvent -> {
-            int currentDay = (Integer) dayBox.getSelectedItem();
-            reloadDaysMonths();
-            try {
-                dayBox.setSelectedItem(currentDay);
-            } catch (Exception e) {
-                dayBox.setSelectedIndex(0);
-            }
-        });
+        yearBox.addActionListener(
+            new YearBoxListener(this)
+        );
 
         /* check validity of username */
-        usernameField.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyReleased(KeyEvent keyEvent) {
-                super.keyTyped(keyEvent);
-                if (Validator.validName(usernameField.getText().toLowerCase())) {
-                    usernameOKLabel.setForeground(Color.GREEN);
-                    usernameOKLabel.setText("valid name!");
-                } else {
-                    usernameOKLabel.setForeground(Color.RED);
-                    usernameOKLabel.setText("invalid username");
-                }
-            }
-        });
+        usernameField.addKeyListener(
+            new UserNameFieldListener(this.usernameField, this.usernameOKLabel)
+        );
 
         /* check if passwords are equal */
-        repeatField.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyReleased(KeyEvent keyEvent) {
-                super.keyTyped(keyEvent);
-                if (Arrays.equals(passwordField.getPassword(), repeatField.getPassword())) {
-                    repeatPasswordOkLabel.setText("passwords match");
-                } else {
-                    repeatPasswordOkLabel.setText("passwords don't match");
-                }
-            }
-        });
+        repeatField.addKeyListener(
+            new RepeatPasswordListener(this)
+        );
 
         /* check correctness of fields, call @HTTPSClient.sinUp method */
-        SignUpButton.addActionListener(actionEvent -> {
-
-            if (!equalPasswords(passwordField.getPassword(), repeatField.getPassword())) {
-                repeatPasswordOkLabel.setForeground(Color.RED);
-                repeatPasswordOkLabel.setText("passwords don't match");
-                return;
-            }
-
-            if (!Validator.validEmail(emailField.getText())) {
-                emailOKlabel.setForeground(Color.RED);
-                emailOKlabel.setText("not a valid email");
-                return;
-            }
-
-            String username = usernameField.getText();
-            char[] password = passwordField.getPassword();
-            String email = emailField.getText();
-            String display_name = displayNameField.getText();
-            String gender = genderField.getText();
-            String preferred_lang = langTextField.getText();
-            String birthdate = null;
-
-            if (dayBox.getSelectedItem() != null && monthBox.getSelectedItem() != null && yearBox.getSelectedItem() != null) {
-                birthdate = dayBox.getSelectedIndex() + "" + monthBox.getSelectedItem() + "" + yearBox.getSelectedItem();
-            }
-
-            HTTPSClient client = new HTTPSClient();
-            Response response = client.signUp(username, password, display_name, email, birthdate, gender, preferred_lang);
-
-            /*
-             * TODO: does @HTTPSClient.signUp return null even if response was provided?
-             */
-            if (response != null) {
-                if (response.getContent().matches("Username [\\w|\\d]+ already found.")) {
-                    usernameOKLabel.setForeground(Color.RED);
-                    usernameOKLabel.setText("username already taken");
-                } else {
-                   /* success */
-                    infoLabel.setText("Success! log in to your new account:");
-                }
-            } else {
-                infoLabel.setText("unable to create account");
-            }
-        });
+        SignUpButton.addActionListener(
+            new SignUpButtonListener(this)
+        );
 
         /* check validity of email */
-        emailField.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyReleased(KeyEvent keyEvent) {
-                super.keyReleased(keyEvent);
-                if (!Validator.validEmail(emailField.getText())) {
-                    emailOKlabel.setForeground(Color.RED);
-                    emailOKlabel.setText("not a valid email");
-                } else {
-                    emailOKlabel.setForeground(Color.GREEN);
-                    emailOKlabel.setText("valid email!");
-                }
-            }
-        });
+        emailField.addKeyListener(
+            new EmailFormListener(this)
+        );
     }
 
     /* sets day numbers depending on month, feb has 29 days if year % 4 == 0 */

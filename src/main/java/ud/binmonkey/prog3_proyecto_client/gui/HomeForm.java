@@ -5,8 +5,7 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import ud.binmonkey.prog3_proyecto_client.ftp.FTPlib;
-import ud.binmonkey.prog3_proyecto_client.gui.utils.UserInputDialog;
+import ud.binmonkey.prog3_proyecto_client.gui.listeners.homeForm.*;
 import ud.binmonkey.prog3_proyecto_client.https.HTTPSClient;
 
 import javax.swing.*;
@@ -14,8 +13,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
-import java.io.File;
-import java.io.IOException;
 import java.util.Enumeration;
 import java.util.HashMap;
 
@@ -46,122 +43,31 @@ public class HomeForm {
          * Rename file or folder selected by user to value requested in prompt
          * renamed file will be in the same directory old file
          */
-        renameButton.addActionListener(actionEvent -> {
-
-            /* get new name */
-            String newFile = UserInputDialog.getInput("New name", MainWindow.INSTANCE.getFrame());
-
-            /* check if name is not empty */
-            if (newFile == null || newFile.replaceAll("\\s", "").equals("")) {
-                return;
-            }
-
-            try {
-                FTPlib.rename(
-                        MainWindow.INSTANCE.getFrame().getUser(),
-                        new String(MainWindow.INSTANCE.getFrame().getPassword()),
-                        getSelectedDir(),
-                        newFile,
-                        true
-                );
-            } catch (IOException e) {
-                uploadProgressLabel.setText("Error renaming file.");
-            }
-            reloadFileSysTree();
-        });
+        renameButton.addActionListener(
+            new RenameButtonListener(this)
+        );
 
         /*
          * Upload a file to the selected directory
          */
-        uploadButton.addActionListener(actionEvent -> {
-
-            /* select a file */
-            JFileChooser fileChooser = new JFileChooser();
-            fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
-
-            int result = fileChooser.showOpenDialog(new JFrame());
-
-            if (result == JFileChooser.APPROVE_OPTION) {
-
-                /* if it's a file (unnecessary?)*/
-                if (fileChooser.getSelectedFile().isFile()) {
-                    String filePath = fileChooser.getSelectedFile().getAbsolutePath();
-
-                    /* make upload progress display components appear */
-                    uploadProgressLabel.setText("Upload in progress: ");
-                    uploadProgressLabel.setVisible(true);
-                    /* TODO: change progress bar values */
-                    uploadProgressBar.setValue(10);
-                    uploadProgressBar.setVisible(true);
-                    MainWindow.INSTANCE.getFrame().getContentPane().validate();
-                    MainWindow.INSTANCE.getFrame().getContentPane().repaint();
-
-                    /* Upload file in background */
-                    new Thread(() -> {
-                        try {
-                            FTPlib.uploadFile(
-                                    MainWindow.INSTANCE.getFrame().getUser(),
-                                    new String(MainWindow.INSTANCE.getFrame().getPassword()),
-                                    filePath,
-                                    getSelectedDir()
-                            );
-                            uploadProgressBar.setValue(100);
-                            loadFileSysTree();
-                            MainWindow.INSTANCE.getFrame().validate();
-                            MainWindow.INSTANCE.getFrame().repaint();
-                        } catch (IOException e) {
-                            uploadProgressLabel.setText("Unable to upload file.");
-                            uploadProgressLabel.setVisible(true);
-                        }
-                    }).start();
-
-                } else {
-                    uploadProgressLabel.setText("Chosen file is a directory.");
-                    uploadProgressLabel.setVisible(true);
-                }
-            }
-            reloadFileSysTree();
-        });
+        uploadButton.addActionListener(
+            new UploadButtonListener(this)
+        );
 
         /* remove selected file or directory */
-        removeButton.addActionListener(actionEvent -> {
-            try {
-                FTPlib.delete(
-                        MainWindow.INSTANCE.getFrame().getUser(),
-                        new String(MainWindow.INSTANCE.getFrame().getPassword()),
-                        getSelectedDir()
-                );
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            reloadFileSysTree();
-        });
+        removeButton.addActionListener(
+            new RemoveButtonListener(this)
+        );
 
         /* create specified directory */
-        mkdirButton.addActionListener(actionEvent -> {
-
-            /* get new dir name */
-            String newDir = UserInputDialog.getInput("New folder name:", MainWindow.INSTANCE.getFrame());
-
-            /* check if name is not empty */
-            if (newDir == null || newDir.replaceAll("\\s", "").equals("")) {
-                return;
-            }
-            /* try to create directory */
-            try {
-                FTPlib.mkdir(
-                        MainWindow.INSTANCE.getFrame().getUser(),
-                        new String(MainWindow.INSTANCE.getFrame().getPassword()),
-                        getSelectedDir() + newDir
-                );
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            reloadFileSysTree();
-        });
+        mkdirButton.addActionListener(
+            new MkdirButtonListener(this)
+        );
 
         /* reload @userFileSysTree */
-        reloadButton.addActionListener(actionEvent -> reloadFileSysTree());
+        reloadButton.addActionListener(
+            new ReloadButtonListener(this)
+        );
     }
 
     /* reloads @userFileSysTree */

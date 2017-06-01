@@ -1,13 +1,11 @@
 package ud.binmonkey.prog3_proyecto_client.gui;
 
-import ud.binmonkey.prog3_proyecto_client.common.Validator;
-import ud.binmonkey.prog3_proyecto_client.https.HTTPSClient;
-import ud.binmonkey.prog3_proyecto_client.https.Response;
+import ud.binmonkey.prog3_proyecto_client.gui.listeners.common.UserNameFieldListener;
+import ud.binmonkey.prog3_proyecto_client.gui.listeners.loginForm.CreateAccountListener;
+import ud.binmonkey.prog3_proyecto_client.gui.listeners.loginForm.LoginButtonListener;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 
 @SuppressWarnings({"WeakerAccess", "CodeBlock2Expr"})
 public class LoginForm {
@@ -31,57 +29,19 @@ public class LoginForm {
         }
 
         /* check validity of username */
-        usernameField.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyReleased(KeyEvent keyEvent) {
-                super.keyTyped(keyEvent);
-                if (Validator.validName(usernameField.getText().toLowerCase())) {
-                    usernameOKLabel.setForeground(Color.GREEN);
-                    usernameOKLabel.setText("valid name!");
-                } else {
-                    usernameOKLabel.setForeground(Color.RED);
-                    usernameOKLabel.setText("invalid username");
-                }
-            }
-        });
+        usernameField.addKeyListener(
+            new UserNameFieldListener(this.usernameField, this.usernameOKLabel)
+        );
 
-        /* call @HTTPSClient.logIn method; if success launch @HomeForm*/
-        loginButton.addActionListener(actionEvent -> {
-            HTTPSClient client = new HTTPSClient();
+        /* call @HTTPSClient.logIn method; if success launch @HomeForm */
+        loginButton.addActionListener(
+            new LoginButtonListener(this)
+        );
 
-            String username = usernameField.getText().toLowerCase();
-            char[] password = passwordFiled.getPassword();
-
-            Response response = client.login(username, new String(password));
-
-            try {
-                /* username does not exist */
-                if (response.getContent().matches("Username [\\w|\\d]+ not found.")) {
-                    usernameOKLabel.setForeground(Color.RED);
-                    usernameOKLabel.setText("username not found");
-                    return;
-                }
-            } catch (NullPointerException e) {
-                usernameOKLabel.setForeground(Color.RED);
-                usernameOKLabel.setText("unable to log in");
-                return;
-            }
-
-            String token = response.getContent();
-            if (token != null) {
-                usernameOKLabel.setForeground(Color.BLUE);
-                usernameOKLabel.setText("Logged in!");
-                MainWindow.INSTANCE.getFrame().setLogged(true);
-                MainWindow.INSTANCE.getFrame().setSession(username, password, token);
-                MainWindow.INSTANCE.getFrame().setForm(new HomeForm().mainHomePanel);
-            } else {
-                usernameOKLabel.setForeground(Color.RED);
-                usernameOKLabel.setText("unable to log in");
-            }
-        });
-        createAccountButton.addActionListener(actionEvent -> {
-            MainWindow.INSTANCE.getFrame().setForm(new SignUpForm().mainSignUpPanel);
-        });
+        /* switch to @SignUpForm */
+        createAccountButton.addActionListener(
+            new CreateAccountListener(this)
+        );
     }
 
     public static void main(String[] args) {
