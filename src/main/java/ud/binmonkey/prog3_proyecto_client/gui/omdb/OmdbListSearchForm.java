@@ -4,9 +4,9 @@ import ud.binmonkey.prog3_proyecto_client.omdb.MediaType;
 import ud.binmonkey.prog3_proyecto_client.omdb.Omdb;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.event.*;
-import java.security.Key;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,7 +20,7 @@ public class OmdbListSearchForm {
 
     private JPanel addPanel;
     private JTextField idText;
-    private JButton addButton;
+    private JButton selectButton;
 
     private JPanel titleGrid;
     private JTable titleTable;
@@ -36,16 +36,29 @@ public class OmdbListSearchForm {
 
         titleTable.setModel(titleModel);
 
+        titleTable.getColumn("ID").setMaxWidth(65);
+        titleTable.getColumn("Year").setMaxWidth(70);
+        titleTable.getColumn("Type").setMaxWidth(45);
+
+        titleTable.getColumn("ID").setMinWidth(65);
+        titleTable.getColumn("Year").setMinWidth(70);
+        titleTable.getColumn("Type").setMinWidth(45);
+
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+
+        titleTable.getColumn("ID").setCellRenderer(centerRenderer);
+        titleTable.getColumn("Year").setCellRenderer(centerRenderer);
+        titleTable.getColumn("Type").setCellRenderer(centerRenderer);
+
         /* Search Button listener */
-        searchButton.addActionListener((ActionEvent e) -> {
-            listSearch();
-        });
+        searchButton.addActionListener((ActionEvent e) -> listSearch());
 
         searchText.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
                 super.keyPressed(e);
-                if(e.getKeyChar() == KeyEvent.VK_ENTER){
+                if (e.getKeyChar() == KeyEvent.VK_ENTER) {
                     listSearch();
                 }
             }
@@ -59,10 +72,17 @@ public class OmdbListSearchForm {
                 idText.setText((String) titleModel.getValueAt(row, 0));
             }
         });
-
     }
 
-    private void listSearch(){
+    public static void main(String[] args) {
+        JFrame frame = new JFrame("Search");
+        frame.setContentPane(new OmdbListSearchForm().mainOmdbListPanel);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.pack();
+        frame.setVisible(true);
+    }
+
+    private void listSearch() {
         MediaType type = null;
 
             /* Clear Table */
@@ -85,9 +105,7 @@ public class OmdbListSearchForm {
                 break;
         }
 
-
         HashMap search = Omdb.search(searchText.getText(), type);
-
 
         if (search != null) {
             for (Object id : search.keySet()) {
@@ -97,13 +115,5 @@ public class OmdbListSearchForm {
                 titleModel.addRow(data);
             }
         }
-    }
-
-    public static void main(String[] args) {
-        JFrame frame = new JFrame("Search");
-        frame.setContentPane(new OmdbListSearchForm().mainOmdbListPanel);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.pack();
-        frame.setVisible(true);
     }
 }
