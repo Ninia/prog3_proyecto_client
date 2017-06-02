@@ -175,9 +175,7 @@ public class HomeForm {
         userFileSysTree.setEditable(false);
         userFileSysTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
         userFileSysTree.addTreeSelectionListener(treeSelectionEvent -> {
-            System.out.println(treeSelectionEvent.getNewLeadSelectionPath());
             userFileSysTree.setSelectionPath(treeSelectionEvent.getNewLeadSelectionPath());
-            System.out.println(getSelectedDir());
         });
         if (userFileSysScrollPane != null) {
             userFileSysScrollPane.setViewportView(userFileSysTree);
