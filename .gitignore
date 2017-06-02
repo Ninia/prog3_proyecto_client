@@ -3,3 +3,4 @@
 /install/ssl.sh
 /target/
 /conf/*
+logs/*
