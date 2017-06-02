@@ -23,34 +23,34 @@ public class LoginButtonListener extends LoginFormListener implements ActionList
     public void actionPerformed(ActionEvent actionEvent) {
         HTTPSClient client = new HTTPSClient();
 
-        String username = loginForm.usernameField.getText().toLowerCase();
-        char[] password = loginForm.passwordFiled.getPassword();
+        String username = this.getLoginForm().usernameField.getText().toLowerCase();
+        char[] password = this.getLoginForm().passwordFiled.getPassword();
 
         Response response = client.login(username, new String(password));
 
         try {
                 /* username does not exist */
             if (response.getContent().matches("Username [\\w|\\d]+ not found.")) {
-                loginForm.usernameOKLabel.setForeground(Color.RED);
-                loginForm.usernameOKLabel.setText("username not found");
+                this.getLoginForm().usernameOKLabel.setForeground(Color.RED);
+                this.getLoginForm().usernameOKLabel.setText("username not found");
                 return;
             }
         } catch (NullPointerException e) {
-            loginForm.usernameOKLabel.setForeground(Color.RED);
-            loginForm.usernameOKLabel.setText("unable to log in");
+            this.getLoginForm().usernameOKLabel.setForeground(Color.RED);
+            this.getLoginForm().usernameOKLabel.setText("unable to log in");
             return;
         }
 
         String token = response.getContent();
         if (token != null) {
-            loginForm.usernameOKLabel.setForeground(Color.BLUE);
-            loginForm.usernameOKLabel.setText("Logged in!");
+            this.getLoginForm().usernameOKLabel.setForeground(Color.BLUE);
+            this.getLoginForm().usernameOKLabel.setText("Logged in!");
             MainWindow.INSTANCE.getFrame().setLogged(true);
             MainWindow.INSTANCE.getFrame().setSession(username, password, token);
             MainWindow.INSTANCE.getFrame().setForm(new HomeForm().mainHomePanel);
         } else {
-            loginForm.usernameOKLabel.setForeground(Color.RED);
-            loginForm.usernameOKLabel.setText("unable to log in");
+            this.getLoginForm().usernameOKLabel.setForeground(Color.RED);
+            this.getLoginForm().usernameOKLabel.setText("unable to log in");
         }
     }
 }

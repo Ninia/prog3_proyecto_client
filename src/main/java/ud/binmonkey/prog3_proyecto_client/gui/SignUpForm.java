@@ -1,5 +1,8 @@
 package ud.binmonkey.prog3_proyecto_client.gui;
 
+import com.intellij.uiDesigner.core.GridConstraints;
+import com.intellij.uiDesigner.core.GridLayoutManager;
+import com.intellij.uiDesigner.core.Spacer;
 import ud.binmonkey.prog3_proyecto_client.gui.listeners.common.UserNameFieldListener;
 import ud.binmonkey.prog3_proyecto_client.gui.listeners.signUpForm.*;
 
@@ -77,37 +80,37 @@ public class SignUpForm {
 
         /* switch to login form */
         LogInButton.addActionListener(
-            new LoginButtonListener(this)
+                new LoginButtonListener(this)
         );
 
         /* set correct month days*/
         monthBox.addActionListener(
-            new MonthBoxListener(this)
+                new MonthBoxListener(this)
         );
 
         /* set correct month days for february */
         yearBox.addActionListener(
-            new YearBoxListener(this)
+                new YearBoxListener(this)
         );
 
         /* check validity of username */
         usernameField.addKeyListener(
-            new UserNameFieldListener(this.usernameField, this.usernameOKLabel)
+                new UserNameFieldListener(this.usernameField, this.usernameOKLabel)
         );
 
         /* check if passwords are equal */
         repeatField.addKeyListener(
-            new RepeatPasswordListener(this)
+                new RepeatPasswordListener(this)
         );
 
         /* check correctness of fields, call @HTTPSClient.sinUp method */
         SignUpButton.addActionListener(
-            new SignUpButtonListener(this)
+                new SignUpButtonListener(this)
         );
 
         /* check validity of email */
         emailField.addKeyListener(
-            new EmailFormListener(this)
+                new EmailFormListener(this)
         );
     }
 
@@ -171,18 +174,18 @@ public class SignUpForm {
         mainSignUpPanel = new JPanel();
         mainSignUpPanel.setLayout(new BorderLayout(0, 0));
         logInPanel = new JPanel();
-        logInPanel.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(1, 3, new Insets(0, 0, 0, 0), -1, -1));
+        logInPanel.setLayout(new GridLayoutManager(1, 3, new Insets(0, 0, 0, 0), -1, -1));
         mainSignUpPanel.add(logInPanel, BorderLayout.SOUTH);
         final JLabel label1 = new JLabel();
         label1.setText("Already have an account?");
-        logInPanel.add(label1, new com.intellij.uiDesigner.core.GridConstraints(0, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        logInPanel.add(label1, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         LogInButton = new JButton();
         LogInButton.setBackground(new Color(-16748629));
         LogInButton.setBorderPainted(false);
         LogInButton.setText("  Log In  ");
-        logInPanel.add(LogInButton, new com.intellij.uiDesigner.core.GridConstraints(0, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        final com.intellij.uiDesigner.core.Spacer spacer1 = new com.intellij.uiDesigner.core.Spacer();
-        logInPanel.add(spacer1, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        logInPanel.add(LogInButton, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        final Spacer spacer1 = new Spacer();
+        logInPanel.add(spacer1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
         attributesPanel = new JPanel();
         attributesPanel.setLayout(new GridBagLayout());
         mainSignUpPanel.add(attributesPanel, BorderLayout.CENTER);

@@ -145,7 +145,6 @@ public enum MainWindow {
     /*
     GETTERS AND SETTERS
      */
-
     public MainFrame getFrame() {
         return frame;
     }

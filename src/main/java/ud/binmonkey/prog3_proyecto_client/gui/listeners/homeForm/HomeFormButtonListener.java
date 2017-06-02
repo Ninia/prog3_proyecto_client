@@ -6,8 +6,6 @@ import java.awt.event.ActionListener;
 
 public abstract class HomeFormButtonListener extends HomeFormListener implements ActionListener{
 
-    protected HomeForm homeForm;
-
     public HomeFormButtonListener(HomeForm homeForm) {
         super(homeForm);
     }

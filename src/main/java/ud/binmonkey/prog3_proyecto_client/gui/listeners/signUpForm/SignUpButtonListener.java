@@ -20,32 +20,33 @@ public class SignUpButtonListener extends SignUpFormActionListener {
     @Override
     public void actionPerformed(ActionEvent actionEvent) {
 
-        if (!signUpForm.equalPasswords(
-                signUpForm.passwordField.getPassword(), signUpForm.repeatField.getPassword())) {
-            signUpForm.repeatPasswordOkLabel.setForeground(Color.RED);
-            signUpForm.repeatPasswordOkLabel.setText("passwords don't match");
+        if (!this.getSignUpForm().equalPasswords(
+                this.getSignUpForm().passwordField.getPassword(), this.getSignUpForm().repeatField.getPassword())) {
+            this.getSignUpForm().repeatPasswordOkLabel.setForeground(Color.RED);
+            this.getSignUpForm().repeatPasswordOkLabel.setText("passwords don't match");
             return;
         }
 
-        if (!Validator.validEmail(signUpForm.emailField.getText())) {
-            signUpForm.emailOKlabel.setForeground(Color.RED);
-            signUpForm.emailOKlabel.setText("not a valid email");
+        if (!Validator.validEmail(this.getSignUpForm().emailField.getText())) {
+            this.getSignUpForm().emailOKlabel.setForeground(Color.RED);
+            this.getSignUpForm().emailOKlabel.setText("not a valid email");
             return;
         }
 
-        String username = signUpForm.usernameField.getText();
-        char[] password = signUpForm.passwordField.getPassword();
-        String email = signUpForm.emailField.getText();
-        String display_name = signUpForm.displayNameField.getText();
-        String gender = signUpForm.genderField.getText();
-        String preferred_lang = signUpForm.langTextField.getText();
+        String username = this.getSignUpForm().usernameField.getText();
+        char[] password = this.getSignUpForm().passwordField.getPassword();
+        String email = this.getSignUpForm().emailField.getText();
+        String display_name = this.getSignUpForm().displayNameField.getText();
+        String gender = this.getSignUpForm().genderField.getText();
+        String preferred_lang = this.getSignUpForm().langTextField.getText();
         String birthdate = null;
 
-        if (signUpForm.dayBox.getSelectedItem() != null && signUpForm.monthBox.getSelectedItem() != null &&
-                signUpForm.yearBox.getSelectedItem() != null) {
-            birthdate = signUpForm.dayBox.getSelectedIndex() + ""
-                    + signUpForm.monthBox.getSelectedItem() + ""
-                    + signUpForm.yearBox.getSelectedItem();
+        if (this.getSignUpForm().dayBox.getSelectedItem() != null &&
+                this.getSignUpForm().monthBox.getSelectedItem() != null &&
+                this.getSignUpForm().yearBox.getSelectedItem() != null) {
+            birthdate = this.getSignUpForm().dayBox.getSelectedIndex() + ""
+                    + this.getSignUpForm().monthBox.getSelectedItem() + ""
+                    + this.getSignUpForm().yearBox.getSelectedItem();
         }
 
         HTTPSClient client = new HTTPSClient();
@@ -56,14 +57,14 @@ public class SignUpButtonListener extends SignUpFormActionListener {
          */
         if (response != null) {
             if (response.getContent().matches("Username [\\w|\\d]+ already found.")) {
-                signUpForm.usernameOKLabel.setForeground(Color.RED);
-                signUpForm.usernameOKLabel.setText("username already taken");
+                this.getSignUpForm().usernameOKLabel.setForeground(Color.RED);
+                this.getSignUpForm().usernameOKLabel.setText("username already taken");
             } else {
                /* success */
-                signUpForm.infoLabel.setText("Success! log in to your new account:");
+                this.getSignUpForm().infoLabel.setText("Success! log in to your new account:");
             }
         } else {
-            signUpForm.infoLabel.setText("unable to create account");
+            this.getSignUpForm().infoLabel.setText("unable to create account");
         }
     }
 }

@@ -22,11 +22,11 @@ public class RemoveButtonListener extends HomeFormButtonListener {
             FTPlib.delete(
                     MainWindow.INSTANCE.getFrame().getUser(),
                     new String(MainWindow.INSTANCE.getFrame().getPassword()),
-                    homeForm.getSelectedDir()
+                    this.getHomeForm().getSelectedDir()
             );
         } catch (IOException e) {
             e.printStackTrace();
         }
-        homeForm.reloadFileSysTree();
+        this.getHomeForm().reloadFileSysTree();
     }
 }

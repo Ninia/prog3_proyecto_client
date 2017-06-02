@@ -32,13 +32,13 @@ public class RenameButtonListener extends HomeFormButtonListener {
             FTPlib.rename(
                     MainWindow.INSTANCE.getFrame().getUser(),
                     new String(MainWindow.INSTANCE.getFrame().getPassword()),
-                    homeForm.getSelectedDir(),
+                    this.getHomeForm().getSelectedDir(),
                     newFile,
                     true
             );
         } catch (IOException e) {
-            homeForm.uploadProgressLabel.setText("Error renaming file.");
+            this.getHomeForm().uploadProgressLabel.setText("Error renaming file.");
         }
-        homeForm.reloadFileSysTree();
+        this.getHomeForm().reloadFileSysTree();
     }
 }

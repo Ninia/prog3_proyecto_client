@@ -12,12 +12,12 @@ public class YearBoxListener extends SignUpFormActionListener {
 
     @Override
     public void actionPerformed(ActionEvent actionEvent) {
-        int currentDay = (Integer) signUpForm.dayBox.getSelectedItem();
-        signUpForm.reloadDaysMonths();
+        int currentDay = (Integer) this.getSignUpForm().dayBox.getSelectedItem();
+        this.getSignUpForm().reloadDaysMonths();
         try {
-            signUpForm.dayBox.setSelectedItem(currentDay);
+            this.getSignUpForm().dayBox.setSelectedItem(currentDay);
         } catch (Exception e) {
-            signUpForm.dayBox.setSelectedIndex(0);
+            this.getSignUpForm().dayBox.setSelectedIndex(0);
         }
     }
 }

@@ -33,11 +33,11 @@ public class UploadButtonListener extends HomeFormButtonListener {
                 String filePath = fileChooser.getSelectedFile().getAbsolutePath();
 
                 /* make upload progress display components appear */
-                homeForm.uploadProgressLabel.setText("Upload in progress: ");
-                homeForm.uploadProgressLabel.setVisible(true);
+                this.getHomeForm().uploadProgressLabel.setText("Upload in progress: ");
+                this.getHomeForm().uploadProgressLabel.setVisible(true);
                 /* TODO: change progress bar values */
-                homeForm.uploadProgressBar.setValue(10);
-                homeForm.uploadProgressBar.setVisible(true);
+                this.getHomeForm().uploadProgressBar.setValue(10);
+                this.getHomeForm().uploadProgressBar.setVisible(true);
                 MainWindow.INSTANCE.getFrame().getContentPane().validate();
                 MainWindow.INSTANCE.getFrame().getContentPane().repaint();
 
@@ -48,23 +48,23 @@ public class UploadButtonListener extends HomeFormButtonListener {
                                 MainWindow.INSTANCE.getFrame().getUser(),
                                 new String(MainWindow.INSTANCE.getFrame().getPassword()),
                                 filePath,
-                                homeForm.getSelectedDir()
+                                this.getHomeForm().getSelectedDir()
                         );
-                        homeForm.uploadProgressBar.setValue(100);
-                        homeForm.loadFileSysTree();
+                        this.getHomeForm().uploadProgressBar.setValue(100);
+                        this.getHomeForm().loadFileSysTree();
                         MainWindow.INSTANCE.getFrame().validate();
                         MainWindow.INSTANCE.getFrame().repaint();
                     } catch (IOException e) {
-                        homeForm.uploadProgressLabel.setText("Unable to upload file.");
-                        homeForm.uploadProgressLabel.setVisible(true);
+                        this.getHomeForm().uploadProgressLabel.setText("Unable to upload file.");
+                        this.getHomeForm().uploadProgressLabel.setVisible(true);
                     }
                 }).start();
 
             } else {
-                homeForm.uploadProgressLabel.setText("Chosen file is a directory.");
-                homeForm.uploadProgressLabel.setVisible(true);
+                this.getHomeForm().uploadProgressLabel.setText("Chosen file is a directory.");
+                this.getHomeForm().uploadProgressLabel.setVisible(true);
             }
         }
-        homeForm.reloadFileSysTree();
+        this.getHomeForm().reloadFileSysTree();
     }
 }

@@ -15,6 +15,6 @@ public class ReloadButtonListener extends HomeFormButtonListener {
      */
     @Override
     public void actionPerformed(ActionEvent actionEvent) {
-        homeForm.reloadFileSysTree();
+        this.getHomeForm().reloadFileSysTree();
     }
 }
