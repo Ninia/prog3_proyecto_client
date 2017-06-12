@@ -135,9 +135,17 @@ public class HomeForm {
         HTTPSClient client = new HTTPSClient();
 
         /* Load user files and dirs */
-        JSONObject fileSys = client.parseDirResponse(client.listDir(
-                MainWindow.INSTANCE.getFrame().getUser(), null, MainWindow.INSTANCE.getFrame().getToken()
-        ));
+        JSONObject fileSys;
+        try {
+            fileSys = client.parseDirResponse(client.listDir(
+                    MainWindow.INSTANCE.getFrame().getUser(), null, MainWindow.INSTANCE.getFrame().getToken()
+            ));
+        } catch (Exception e) {
+//            throw new HTTPException(403);
+            userFileSysTree = new JTree();
+            userFileSysTree.setToolTipText("Unable to retrieve file system");
+            return;
+        }
 
         /* root node with username */
         DefaultMutableTreeNode root = new DefaultMutableTreeNode(MainWindow.INSTANCE.getFrame().getUser());
@@ -173,6 +181,7 @@ public class HomeForm {
         /* reset @userFileSysTree */
         userFileSysTree = new JTree(root);
         userFileSysTree.setEditable(false);
+        userFileSysTree.setToolTipText("File system of " + MainWindow.INSTANCE.getFrame().getUser());
         userFileSysTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
         userFileSysTree.addTreeSelectionListener(treeSelectionEvent -> {
             userFileSysTree.setSelectionPath(treeSelectionEvent.getNewLeadSelectionPath());
