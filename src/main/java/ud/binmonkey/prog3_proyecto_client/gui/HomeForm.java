@@ -3,16 +3,23 @@ package ud.binmonkey.prog3_proyecto_client.gui;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import org.imgscalr.Scalr;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import ud.binmonkey.prog3_proyecto_client.common.MovieName;
+import ud.binmonkey.prog3_proyecto_client.ftp.FTPlib;
 import ud.binmonkey.prog3_proyecto_client.gui.listeners.homeForm.*;
 import ud.binmonkey.prog3_proyecto_client.https.HTTPSClient;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.Enumeration;
 import java.util.HashMap;
 
@@ -31,6 +38,12 @@ public class HomeForm {
     public JProgressBar uploadProgressBar;
     public JLabel uploadProgressLabel;
     public JButton reloadButton;
+    private JLabel whoseFilesLabel;
+    private JPanel moviePanel;
+    private JLabel movieImageLabel;
+    private JPanel movieInfoLayout;
+    private JLabel movieNameLabel;
+    private JLabel movieYearLabel;
 
     /**
      * Default form shown when user logs in
@@ -183,8 +196,50 @@ public class HomeForm {
         userFileSysTree.setEditable(false);
         userFileSysTree.setToolTipText("File system of " + MainWindow.INSTANCE.getFrame().getUser());
         userFileSysTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+
+        /*
+         * TREE LISTENER
+         */
         userFileSysTree.addTreeSelectionListener(treeSelectionEvent -> {
+
             userFileSysTree.setSelectionPath(treeSelectionEvent.getNewLeadSelectionPath());
+
+            /*TODO: check if file is movie */
+            String fileName = userFileSysTree.getSelectionPath().getLastPathComponent().toString();
+            System.out.println(MovieName.matchesMovie(fileName));
+            if (MovieName.matchesMovie(fileName)) {
+
+                String name = MovieName.getName(fileName);
+                String year = MovieName.getYear(fileName);
+                String fullName = MovieName.removeExtension(fileName);
+
+                movieNameLabel.setText("Name: " + name);
+                movieYearLabel.setText("Year: " + year);
+
+                File imageFile = new File("data/images/" + fullName + ".jpg");
+                if (!imageFile.exists()) {
+                    try {
+                        FTPlib.downloadFilmImage(name, year);
+
+                    } catch (IOException e) {
+                        movieImageLabel.setText("404: No image found.");
+                        return;
+                    }
+                }
+                try {
+                    BufferedImage image = ImageIO.read(imageFile);
+                    image = Scalr.resize(image, 300, 425);
+                    ImageIcon pic = new ImageIcon(image);
+                    movieImageLabel.setIcon(pic);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                movieNameLabel.setText("");
+                movieYearLabel.setText("");
+                movieImageLabel.setIcon(null);
+            }
+
         });
         if (userFileSysScrollPane != null) {
             userFileSysScrollPane.setViewportView(userFileSysTree);
