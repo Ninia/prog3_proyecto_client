@@ -44,6 +44,7 @@ public class HomeForm {
     private JPanel movieInfoLayout;
     private JLabel movieNameLabel;
     private JLabel movieYearLabel;
+    public JButton publishButton;
 
     /**
      * Default form shown when user logs in
@@ -80,6 +81,10 @@ public class HomeForm {
         /* reload @userFileSysTree */
         reloadButton.addActionListener(
                 new ReloadButtonListener(this)
+        );
+
+        publishButton.addActionListener(
+                new PublishButtonListener(this)
         );
     }
 
@@ -150,7 +155,7 @@ public class HomeForm {
         /* Load user files and dirs */
         JSONObject fileSys;
         try {
-            fileSys = client.parseDirResponse(client.listDir(
+            fileSys = client.parseJSONResponse(client.listDir(
                     MainWindow.INSTANCE.getFrame().getUser(), null, MainWindow.INSTANCE.getFrame().getToken()
             ));
 
@@ -405,13 +410,17 @@ public class HomeForm {
         renameButton.setText("rename");
         sysButtonsPanel.add(renameButton);
         uploadButton = new JButton();
-        uploadButton.setBackground(new Color(-16752771));
+        uploadButton.setBackground(new Color(-16747879));
         uploadButton.setText("upload");
         sysButtonsPanel.add(uploadButton);
         removeButton = new JButton();
-        removeButton.setBackground(new Color(-8571609));
+        removeButton.setBackground(new Color(-7259092));
         removeButton.setText("remove");
         sysButtonsPanel.add(removeButton);
+        publishButton = new JButton();
+        publishButton.setBackground(new Color(-16736701));
+        publishButton.setText("Make Public");
+        sysButtonsPanel.add(publishButton);
     }
 
     /**

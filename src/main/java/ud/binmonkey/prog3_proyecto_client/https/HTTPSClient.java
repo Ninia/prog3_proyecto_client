@@ -217,7 +217,7 @@ public class HTTPSClient {
         Pair[] pairs = new Pair[]{
                 new Pair("title", title),
                 new Pair("type", type),
-                new Pair("user", userName),
+                new Pair("username", userName),
                 new Pair("token", token)
         };
         if (title != null && type != null && userName != null && token != null) {
