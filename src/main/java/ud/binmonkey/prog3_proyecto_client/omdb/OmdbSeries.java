@@ -32,6 +32,10 @@ public class OmdbSeries extends OmdbTitle {
         this.country = JSONFormatter.listFormatter(series.get("Country"));
     }
 
+    public int getSeasons() {
+        return seasons;
+    }
+
     /* Format Conversion Methods */
 
     /**

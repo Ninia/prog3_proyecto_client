@@ -36,6 +36,34 @@ public class OmdbTitle {
         this.poster = (String) title.get("Poster");
     }
 
+    public String getTitle() {
+        return title;
+    }
+
+    public String getYear() {
+        return year;
+    }
+
+    public Date getReleased() {
+        return released;
+    }
+
+    public String getPlot() {
+        return plot;
+    }
+
+    public String getAwards() {
+        return awards;
+    }
+
+    public int getRuntime() {
+        return runtime;
+    }
+
+    public String getPoster() {
+        return poster;
+    }
+
     public JSONObject toJSON() {
 
         JSONObject episodeJSON = new JSONObject();

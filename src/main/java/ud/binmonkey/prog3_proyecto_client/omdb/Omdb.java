@@ -23,7 +23,13 @@ public class Omdb {
 
     /* Logger for Omdb */
     private static final boolean ADD_TO_FIC_LOG = false; /* set false to overwrite */
+    private static final String keyFile = "conf/keys.xml";
+    private static final String KEY = DocumentReader.getAttr(DocumentReader.getDoc(keyFile),
+            "omdb").getTextContent().replaceAll("\n", "").replaceAll(" ", "");
+    /* END Logger for Omdb */
+    private static final String apikey = "&apikey=" + KEY;
     private static java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Omdb.class.getName());
+    private static String url = "";
 
     static {
         try {
@@ -33,13 +39,6 @@ public class Omdb {
             logger.log(Level.SEVERE, "Error in log file creation");
         }
     }
-    /* END Logger for Omdb */
-
-    private static final String keyFile = "conf/keys.xml";
-    private static final String KEY = DocumentReader.getAttr(DocumentReader.getDoc(keyFile),
-            "omdb").getTextContent().replaceAll("\n", "").replaceAll(" ", "");
-    private static final String apikey = "&apikey=" + KEY;
-    private static String url = "";
 
     /**
      * Searches a title in IMDB, can differentiate between media types.

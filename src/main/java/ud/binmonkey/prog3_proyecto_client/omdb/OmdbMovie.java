@@ -71,6 +71,18 @@ public class OmdbMovie extends OmdbTitle {
                 "poster", poster);
     }
 
+    public Date getDvd() {
+        return dvd;
+    }
+
+    public double getBoxOffice() {
+        return boxOffice;
+    }
+
+    public String getWebsite() {
+        return website;
+    }
+
     /**
      * @return Return information in JSON format
      */

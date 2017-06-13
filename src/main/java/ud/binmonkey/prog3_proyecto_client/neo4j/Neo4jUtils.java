@@ -29,7 +29,7 @@ public class Neo4jUtils extends Neo4j {
     public ArrayList<ArrayList> getTitleList(ArrayList<ArrayList> titleList, String type) {
 
         StatementResult result = getSession().run("MATCH (n:" + type + ") " +
-                "RETURN n.name as id, n.title AS title, n.year AS year, n.poster");
+                "RETURN n.name as id, n.title AS title, n.year AS year, n.poster as poster");
 
         while (result.hasNext()) {
             Record record = result.next();
@@ -37,6 +37,7 @@ public class Neo4jUtils extends Neo4j {
             ArrayList<String> title = new ArrayList<>();
 
             title.add(record.get("id").toString().replaceAll("\"", "")); /* Replaces quotation marks */
+            title.add(record.get("poster").toString().replaceAll("\"", ""));
             title.add(record.get("title").toString().replaceAll("\"", ""));
             title.add(record.get("year").toString().replaceAll("\"", ""));
 
