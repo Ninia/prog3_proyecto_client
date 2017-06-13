@@ -11,4 +11,10 @@
     <test-client>
         <port>[port number]</port>
     </test-client>
+    <!--Neo4j-->
+    <neo4j-server>
+        <server_address>bolt://localhost:7687</server_address>
+        <username>username</username>
+        <password>password</password>
+    </neo4j-server>
 </network>
