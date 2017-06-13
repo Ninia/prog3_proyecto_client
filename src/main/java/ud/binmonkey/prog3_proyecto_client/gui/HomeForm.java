@@ -206,7 +206,6 @@ public class HomeForm {
 
             /*TODO: check if file is movie */
             String fileName = userFileSysTree.getSelectionPath().getLastPathComponent().toString();
-            System.out.println(MovieName.matchesMovie(fileName));
             if (MovieName.matchesMovie(fileName)) {
 
                 String name = MovieName.getName(fileName);
