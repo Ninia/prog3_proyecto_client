@@ -2,6 +2,7 @@ package ud.binmonkey.prog3_proyecto_client.gui.listeners.signUpForm;
 
 import ud.binmonkey.prog3_proyecto_client.gui.SignUpForm;
 
+import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.Arrays;
@@ -19,8 +20,10 @@ public class RepeatPasswordListener extends KeyAdapter {
         super.keyTyped(keyEvent);
         if (Arrays.equals(signUpForm.passwordField.getPassword(), signUpForm.repeatField.getPassword())) {
             signUpForm.repeatPasswordOkLabel.setText("passwords match");
+            signUpForm.repeatPasswordOkLabel.setForeground(Color.GREEN);
         } else {
             signUpForm.repeatPasswordOkLabel.setText("passwords don't match");
+            signUpForm.repeatPasswordOkLabel.setForeground(Color.RED);
         }
     }
 }

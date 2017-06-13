@@ -39,11 +39,11 @@ public class OmdbListSearchForm {
 
         titleTable.setModel(titleModel);
 
-        titleTable.getColumn("ID").setMaxWidth(65);
+        titleTable.getColumn("ID").setMaxWidth(70);
         titleTable.getColumn("Year").setMaxWidth(70);
         titleTable.getColumn("Type").setMaxWidth(45);
 
-        titleTable.getColumn("ID").setMinWidth(65);
+        titleTable.getColumn("ID").setMinWidth(70);
         titleTable.getColumn("Year").setMinWidth(70);
         titleTable.getColumn("Type").setMinWidth(45);
 

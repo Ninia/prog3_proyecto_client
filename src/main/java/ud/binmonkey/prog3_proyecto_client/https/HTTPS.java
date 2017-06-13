@@ -2,6 +2,7 @@ package ud.binmonkey.prog3_proyecto_client.https;
 
 import ud.binmonkey.prog3_proyecto_client.common.InputStreamStringReader;
 import ud.binmonkey.prog3_proyecto_client.common.Pair;
+import ud.binmonkey.prog3_proyecto_client.common.network.URLParamEncoder;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.IOException;
@@ -29,25 +30,31 @@ public class HTTPS {
             throws IOException {
 
         /* build request uri */
-        StringBuilder url = new StringBuilder();
-        url.append(address).append(":").append(port).append(path);
+        StringBuilder urlBuilder = new StringBuilder();
+        urlBuilder.append(address).append(":").append(port).append(path);
 
         /* append all args */
         if (args != null) {
-            url.append("?");
+            urlBuilder.append("?");
 
             int argCount = 0;
             for (Pair arg: args) {
                 if (argCount > 0) {
-                    url.append("&");
+                    urlBuilder.append("&");
                 }
                 argCount++;
-                url.append(arg.getKey()).append("=").append(arg.getValue());
+                urlBuilder.append(
+                        URLParamEncoder.encode(arg.getKey().toString())
+                ).append("=").append(
+                        URLParamEncoder.encode(arg.getValue().toString())
+                );
             }
         }
 
+        String url = urlBuilder.toString();
+
         /* initialize connection */
-        HttpsURLConnection conn = (HttpsURLConnection) new URL(url.toString()).openConnection();
+        HttpsURLConnection conn = (HttpsURLConnection) new URL(url).openConnection();
 
         /* set request method */
         conn.setRequestMethod(method.toString());

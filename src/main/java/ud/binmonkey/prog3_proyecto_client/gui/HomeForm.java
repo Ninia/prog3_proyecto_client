@@ -3,16 +3,23 @@ package ud.binmonkey.prog3_proyecto_client.gui;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import org.imgscalr.Scalr;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import ud.binmonkey.prog3_proyecto_client.common.MovieName;
+import ud.binmonkey.prog3_proyecto_client.ftp.FTPlib;
 import ud.binmonkey.prog3_proyecto_client.gui.listeners.homeForm.*;
 import ud.binmonkey.prog3_proyecto_client.https.HTTPSClient;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.Enumeration;
 import java.util.HashMap;
 
@@ -31,6 +38,12 @@ public class HomeForm {
     public JProgressBar uploadProgressBar;
     public JLabel uploadProgressLabel;
     public JButton reloadButton;
+    private JLabel whoseFilesLabel;
+    private JPanel moviePanel;
+    private JLabel movieImageLabel;
+    private JPanel movieInfoLayout;
+    private JLabel movieNameLabel;
+    private JLabel movieYearLabel;
 
     /**
      * Default form shown when user logs in
@@ -44,29 +57,29 @@ public class HomeForm {
          * renamed file will be in the same directory old file
          */
         renameButton.addActionListener(
-            new RenameButtonListener(this)
+                new RenameButtonListener(this)
         );
 
         /*
          * Upload a file to the selected directory
          */
         uploadButton.addActionListener(
-            new UploadButtonListener(this)
+                new UploadButtonListener(this)
         );
 
         /* remove selected file or directory */
         removeButton.addActionListener(
-            new RemoveButtonListener(this)
+                new RemoveButtonListener(this)
         );
 
         /* create specified directory */
         mkdirButton.addActionListener(
-            new MkdirButtonListener(this)
+                new MkdirButtonListener(this)
         );
 
         /* reload @userFileSysTree */
         reloadButton.addActionListener(
-            new ReloadButtonListener(this)
+                new ReloadButtonListener(this)
         );
     }
 
@@ -135,9 +148,24 @@ public class HomeForm {
         HTTPSClient client = new HTTPSClient();
 
         /* Load user files and dirs */
-        JSONObject fileSys = client.parseDirResponse(client.listDir(
-                MainWindow.INSTANCE.getFrame().getUser(), null, MainWindow.INSTANCE.getFrame().getToken()
-        ));
+        JSONObject fileSys;
+        try {
+            fileSys = client.parseDirResponse(client.listDir(
+                    MainWindow.INSTANCE.getFrame().getUser(), null, MainWindow.INSTANCE.getFrame().getToken()
+            ));
+
+            if (fileSys == null) {
+                DefaultMutableTreeNode root = new DefaultMutableTreeNode(MainWindow.INSTANCE.getFrame().getUser());
+                userFileSysTree = new JTree(root);
+                whoseFilesLabel.setText("You have no files yet :/");
+                return;
+            }
+        } catch (Exception e) {
+//            throw new HTTPException(403);
+            userFileSysTree = new JTree();
+            userFileSysTree.setToolTipText("Unable to retrieve file system");
+            return;
+        }
 
         /* root node with username */
         DefaultMutableTreeNode root = new DefaultMutableTreeNode(MainWindow.INSTANCE.getFrame().getUser());
@@ -173,9 +201,51 @@ public class HomeForm {
         /* reset @userFileSysTree */
         userFileSysTree = new JTree(root);
         userFileSysTree.setEditable(false);
+        userFileSysTree.setToolTipText("File system of " + MainWindow.INSTANCE.getFrame().getUser());
         userFileSysTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+
+        /*
+         * TREE LISTENER
+         */
         userFileSysTree.addTreeSelectionListener(treeSelectionEvent -> {
+
             userFileSysTree.setSelectionPath(treeSelectionEvent.getNewLeadSelectionPath());
+
+            /*TODO: check if file is movie */
+            String fileName = userFileSysTree.getSelectionPath().getLastPathComponent().toString();
+            if (MovieName.matchesMovie(fileName)) {
+
+                String name = MovieName.getName(fileName);
+                String year = MovieName.getYear(fileName);
+                String fullName = MovieName.removeExtension(fileName);
+
+                movieNameLabel.setText("Name: " + name);
+                movieYearLabel.setText("Year: " + year);
+
+                File imageFile = new File("data/images/" + fullName + ".jpg");
+                if (!imageFile.exists()) {
+                    try {
+                        FTPlib.downloadFilmImage(name, year);
+
+                    } catch (IOException e) {
+                        movieImageLabel.setText("404: No image found.");
+                        return;
+                    }
+                }
+                try {
+                    BufferedImage image = ImageIO.read(imageFile);
+                    image = Scalr.resize(image, 300, 425);
+                    ImageIcon pic = new ImageIcon(image);
+                    movieImageLabel.setIcon(pic);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                movieNameLabel.setText("");
+                movieYearLabel.setText("");
+                movieImageLabel.setIcon(null);
+            }
+
         });
         if (userFileSysScrollPane != null) {
             userFileSysScrollPane.setViewportView(userFileSysTree);
@@ -253,6 +323,9 @@ public class HomeForm {
                 DefaultMutableTreeNode dirNode =
                         loadNode((String) dir, (JSONObject) ((JSONObject) fileSys.get("directories")).get((String) dir));
                 dirNode.setAllowsChildren(true);
+                if (dirNode.getChildCount() == 0) {
+                    dirNode.add(new DefaultMutableTreeNode("(no files yet)"));
+                }
                 node.add(dirNode);
             }
         }
@@ -279,8 +352,6 @@ public class HomeForm {
         activitiesPanel = new JPanel();
         activitiesPanel.setLayout(new GridLayoutManager(3, 2, new Insets(0, 0, 0, 0), -1, -1));
         mainHomePanel.add(activitiesPanel, BorderLayout.CENTER);
-        final Spacer spacer1 = new Spacer();
-        activitiesPanel.add(spacer1, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
         userFileSysScrollPane = new JScrollPane();
         activitiesPanel.add(userFileSysScrollPane, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         userFileSysTree.setAutoscrolls(true);
@@ -288,9 +359,42 @@ public class HomeForm {
         userFileSysTree.setFocusCycleRoot(true);
         userFileSysTree.setInheritsPopupMenu(true);
         userFileSysScrollPane.setViewportView(userFileSysTree);
+        uploadProgressPanel = new JPanel();
+        uploadProgressPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+        activitiesPanel.add(uploadProgressPanel, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        uploadProgressLabel = new JLabel();
+        uploadProgressLabel.setForeground(new Color(-16729235));
+        uploadProgressLabel.setText("");
+        uploadProgressLabel.setVisible(false);
+        uploadProgressPanel.add(uploadProgressLabel);
+        uploadProgressBar = new JProgressBar();
+        uploadProgressBar.setVisible(false);
+        uploadProgressPanel.add(uploadProgressBar);
+        whoseFilesLabel = new JLabel();
+        whoseFilesLabel.setText("My Files");
+        activitiesPanel.add(whoseFilesLabel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        moviePanel = new JPanel();
+        moviePanel.setLayout(new BorderLayout(0, 0));
+        activitiesPanel.add(moviePanel, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        movieImageLabel = new JLabel();
+        movieImageLabel.setHorizontalAlignment(0);
+        movieImageLabel.setText("");
+        moviePanel.add(movieImageLabel, BorderLayout.CENTER);
+        movieInfoLayout = new JPanel();
+        movieInfoLayout.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+        moviePanel.add(movieInfoLayout, BorderLayout.SOUTH);
+        movieNameLabel = new JLabel();
+        movieNameLabel.setText("");
+        movieInfoLayout.add(movieNameLabel);
+        final Spacer spacer1 = new Spacer();
+        movieInfoLayout.add(spacer1);
+        movieYearLabel = new JLabel();
+        movieYearLabel.setForeground(new Color(-12434878));
+        movieYearLabel.setText("");
+        movieInfoLayout.add(movieYearLabel);
         sysButtonsPanel = new JPanel();
         sysButtonsPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
-        activitiesPanel.add(sysButtonsPanel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        mainHomePanel.add(sysButtonsPanel, BorderLayout.NORTH);
         mkdirButton = new JButton();
         mkdirButton.setText("create dir");
         sysButtonsPanel.add(mkdirButton);
@@ -308,17 +412,6 @@ public class HomeForm {
         removeButton.setBackground(new Color(-8571609));
         removeButton.setText("remove");
         sysButtonsPanel.add(removeButton);
-        uploadProgressPanel = new JPanel();
-        uploadProgressPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
-        activitiesPanel.add(uploadProgressPanel, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        uploadProgressLabel = new JLabel();
-        uploadProgressLabel.setForeground(new Color(-16729235));
-        uploadProgressLabel.setText("");
-        uploadProgressLabel.setVisible(false);
-        uploadProgressPanel.add(uploadProgressLabel);
-        uploadProgressBar = new JProgressBar();
-        uploadProgressBar.setVisible(false);
-        uploadProgressPanel.add(uploadProgressBar);
     }
 
     /**

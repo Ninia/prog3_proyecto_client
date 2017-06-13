@@ -1,0 +1,1 @@
+Temporal data, such as images, will be stored here.

@@ -2,12 +2,10 @@ package ud.binmonkey.prog3_proyecto_client.ftp;
 
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
+import ud.binmonkey.prog3_proyecto_client.common.MovieName;
 import ud.binmonkey.prog3_proyecto_client.common.network.URI;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 
 public class FTPlib {
 
@@ -120,9 +118,30 @@ public class FTPlib {
         client.makeDirectory(dirname);
     }
 
+    public static void downloadFilmImage(String name, int year) throws IOException {
+        downloadFilmImage(name, new Integer(year).toString());
+    }
+
+    public static void downloadFilmImage(String name, String year) throws IOException {
+        FTPClient client = logIn("common", "common");
+        client.enterLocalPassiveMode();
+        client.setFileType(FTP.BINARY_FILE_TYPE);
+
+        String imagePath = "data/images/" + MovieName.formatMovie(name, year) + ".jpg";
+
+        File file = new File(imagePath);
+        file.delete();
+
+        OutputStream os = new BufferedOutputStream(new FileOutputStream(imagePath));
+
+        client.retrieveFile(imagePath, os);
+        os.close();
+    }
+
     public static void main(String[] args) {
         try {
-            uploadFile("test", "test", "src/test/resources/ftpd/.ignore", "hi/there");
+//            uploadFile("test", "test", "src/test/resources/ftpd/.ignore", "hi/there");
+            downloadFilmImage("Victoria", 2015);
         } catch (IOException e) {
             e.printStackTrace();
         }
