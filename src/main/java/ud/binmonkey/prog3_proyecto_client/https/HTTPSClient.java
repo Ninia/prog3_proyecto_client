@@ -173,7 +173,7 @@ public class HTTPSClient {
      * @param response response from @listDir
      * @return JSON Object
      */
-    public JSONObject parseJSONResponse(Response response) {
+    public static JSONObject parseJSONResponse(Response response) {
         if (response == null) {
             return null;
         }
