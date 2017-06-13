@@ -6,13 +6,12 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import ud.binmonkey.prog3_proyecto_client.common.DocumentReader;
 import ud.binmonkey.prog3_proyecto_client.common.time.DateUtils;
-import ud.binmonkey.prog3_proyecto_client.omdb.MediaType;
 
 import java.io.IOException;
-import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
+
+import static org.neo4j.driver.v1.Values.parameters;
 
 public class Neo4j {
 
@@ -36,8 +35,6 @@ public class Neo4j {
     private Driver driver;
     private Session session;
 
-    private Statement statement;
-
 
     /**
      * Constructor for the class Neoj
@@ -52,18 +49,13 @@ public class Neo4j {
                 Thread.currentThread().interrupt();
             }
         }
-    }
 
-    public static void main(String[] args) {
-        Neo4j neo4j = new Neo4j();
-
-        System.out.println(neo4j.getTitles(MediaType.ALL));
     }
 
     /* Server Utility Methods */
     private void readConfig() {
 
-        NodeList nList = DocumentReader.getDoc("conf/Network.xml").getElementsByTagName("neo4j-server");
+        NodeList nList = DocumentReader.getDoc("conf/properties.xml").getElementsByTagName("neo4j-server");
         Node nNode = nList.item(0);
         Element eElement = (Element) nNode;
 
@@ -95,7 +87,6 @@ public class Neo4j {
 
         return false;
     }
-    /* END Server Utility Methods */
 
     public void closeSession() {
         session.close();
@@ -103,45 +94,70 @@ public class Neo4j {
 
         LOG.log(Level.INFO, "Connection to Neo4j server ended");
     }
+    /* END Server Utility Methods */
 
-    public ArrayList<ArrayList> getTitleList(ArrayList<ArrayList> titleList, String type) {
+    /* DB utility Methods */
 
-        StatementResult result = session.run("MATCH (n:" + type + ") " +
-                "RETURN n.name as id, n.title AS title, n.year AS year, n.poster");
+    /**
+     * Deletes all nodes and relationships from the DB
+     */
+    public void clearDB() {
+        session.run("MATCH (n) DETACH DELETE n;");
+
+        cleanDB();
+
+        LOG.log(Level.INFO, "Cleared Neo4j DB");
+    }
+
+    /**
+     * Deletes all nodes without relationships from the DB
+     */
+    public void cleanDB() {
+        session.run("MATCH (n) WHERE size((n)--())=0 DELETE (n)");
+        LOG.log(Level.INFO, "Cleaned DB");
+    }
+
+    /**
+     * Check if a Node exists in the DB
+     *
+     * @param name - Identifier of the Node
+     * @return true if the Node exists
+     */
+    public boolean checkNode(String name, String type) {
+
+        boolean existance = false;
+        StatementResult result = session.run("MATCH (a:" + type + ") WHERE a.name={name} RETURN a.name",
+                parameters("name", name));
 
         while (result.hasNext()) {
             Record record = result.next();
 
-            ArrayList<String> title = new ArrayList<>();
-
-            title.add(record.get("id").toString().replaceAll("\"", "")); /* Replaces quotation marks */
-            title.add(record.get("title").toString().replaceAll("\"", ""));
-            title.add(record.get("year").toString().replaceAll("\"", ""));
-
-
-            titleList.add(title);
+            if (record.get("a.name").asString().equals(name)) {
+                existance = true;
+            }
         }
-
-        return titleList;
+        return existance;
     }
 
-    public ArrayList<ArrayList> getTitles(MediaType mediaType) {
+    /**
+     * Check if a Relation exists in the DB
+     */
+    public boolean checkRelation(String node, String node_type, String title, String relation_type) {
 
-        ArrayList<ArrayList> titleList = new ArrayList<>();
+        boolean existance = false;
 
-        switch (mediaType) {
-            case MOVIE:
-                getTitleList(titleList, "Movie");
-                break;
-            case SERIES:
-                getTitleList(titleList, "Series");
-                break;
-            case ALL:
-                getTitleList(titleList, "Movie");
-                getTitleList(titleList, "Series");
-                break;
+        StatementResult result = session.run("MATCH (a:" + node_type + ")-[:" + relation_type + "]->(b) " +
+                "WHERE a.name={node} AND b.name={title} RETURN a.name", parameters("node", node, "title", title));
+
+        while (result.hasNext()) {
+            Record record = result.next();
+
+            if (record.get("a.name").asString().equals(node)) {
+                existance = true;
+            }
         }
-        return titleList;
+        return existance;
     }
+    /* END DB utility Methods */
 }
 
