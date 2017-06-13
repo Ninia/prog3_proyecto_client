@@ -34,9 +34,7 @@ public class MkdirButtonListener extends HomeFormButtonListener {
                     new String(MainWindow.INSTANCE.getFrame().getPassword()),
                     this.getHomeForm().getSelectedDir() + newDir
             );
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        } catch (IOException e) {}
         this.getHomeForm().reloadFileSysTree();
     }
 }

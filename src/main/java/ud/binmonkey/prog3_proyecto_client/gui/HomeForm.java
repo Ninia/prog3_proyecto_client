@@ -323,6 +323,9 @@ public class HomeForm {
                 DefaultMutableTreeNode dirNode =
                         loadNode((String) dir, (JSONObject) ((JSONObject) fileSys.get("directories")).get((String) dir));
                 dirNode.setAllowsChildren(true);
+                if (dirNode.getChildCount() == 0) {
+                    dirNode.add(new DefaultMutableTreeNode("(no files yet)"));
+                }
                 node.add(dirNode);
             }
         }
