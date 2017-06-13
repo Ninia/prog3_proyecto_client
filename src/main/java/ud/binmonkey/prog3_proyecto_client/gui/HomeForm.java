@@ -57,29 +57,29 @@ public class HomeForm {
          * renamed file will be in the same directory old file
          */
         renameButton.addActionListener(
-            new RenameButtonListener(this)
+                new RenameButtonListener(this)
         );
 
         /*
          * Upload a file to the selected directory
          */
         uploadButton.addActionListener(
-            new UploadButtonListener(this)
+                new UploadButtonListener(this)
         );
 
         /* remove selected file or directory */
         removeButton.addActionListener(
-            new RemoveButtonListener(this)
+                new RemoveButtonListener(this)
         );
 
         /* create specified directory */
         mkdirButton.addActionListener(
-            new MkdirButtonListener(this)
+                new MkdirButtonListener(this)
         );
 
         /* reload @userFileSysTree */
         reloadButton.addActionListener(
-            new ReloadButtonListener(this)
+                new ReloadButtonListener(this)
         );
     }
 
@@ -153,6 +153,13 @@ public class HomeForm {
             fileSys = client.parseDirResponse(client.listDir(
                     MainWindow.INSTANCE.getFrame().getUser(), null, MainWindow.INSTANCE.getFrame().getToken()
             ));
+
+            if (fileSys == null) {
+                DefaultMutableTreeNode root = new DefaultMutableTreeNode(MainWindow.INSTANCE.getFrame().getUser());
+                userFileSysTree = new JTree(root);
+                whoseFilesLabel.setText("You have no files yet :/");
+                return;
+            }
         } catch (Exception e) {
 //            throw new HTTPException(403);
             userFileSysTree = new JTree();
@@ -342,8 +349,6 @@ public class HomeForm {
         activitiesPanel = new JPanel();
         activitiesPanel.setLayout(new GridLayoutManager(3, 2, new Insets(0, 0, 0, 0), -1, -1));
         mainHomePanel.add(activitiesPanel, BorderLayout.CENTER);
-        final Spacer spacer1 = new Spacer();
-        activitiesPanel.add(spacer1, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
         userFileSysScrollPane = new JScrollPane();
         activitiesPanel.add(userFileSysScrollPane, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         userFileSysTree.setAutoscrolls(true);
@@ -351,9 +356,42 @@ public class HomeForm {
         userFileSysTree.setFocusCycleRoot(true);
         userFileSysTree.setInheritsPopupMenu(true);
         userFileSysScrollPane.setViewportView(userFileSysTree);
+        uploadProgressPanel = new JPanel();
+        uploadProgressPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+        activitiesPanel.add(uploadProgressPanel, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        uploadProgressLabel = new JLabel();
+        uploadProgressLabel.setForeground(new Color(-16729235));
+        uploadProgressLabel.setText("");
+        uploadProgressLabel.setVisible(false);
+        uploadProgressPanel.add(uploadProgressLabel);
+        uploadProgressBar = new JProgressBar();
+        uploadProgressBar.setVisible(false);
+        uploadProgressPanel.add(uploadProgressBar);
+        whoseFilesLabel = new JLabel();
+        whoseFilesLabel.setText("My Files");
+        activitiesPanel.add(whoseFilesLabel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        moviePanel = new JPanel();
+        moviePanel.setLayout(new BorderLayout(0, 0));
+        activitiesPanel.add(moviePanel, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        movieImageLabel = new JLabel();
+        movieImageLabel.setHorizontalAlignment(0);
+        movieImageLabel.setText("");
+        moviePanel.add(movieImageLabel, BorderLayout.CENTER);
+        movieInfoLayout = new JPanel();
+        movieInfoLayout.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+        moviePanel.add(movieInfoLayout, BorderLayout.SOUTH);
+        movieNameLabel = new JLabel();
+        movieNameLabel.setText("");
+        movieInfoLayout.add(movieNameLabel);
+        final Spacer spacer1 = new Spacer();
+        movieInfoLayout.add(spacer1);
+        movieYearLabel = new JLabel();
+        movieYearLabel.setForeground(new Color(-12434878));
+        movieYearLabel.setText("");
+        movieInfoLayout.add(movieYearLabel);
         sysButtonsPanel = new JPanel();
         sysButtonsPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
-        activitiesPanel.add(sysButtonsPanel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        mainHomePanel.add(sysButtonsPanel, BorderLayout.NORTH);
         mkdirButton = new JButton();
         mkdirButton.setText("create dir");
         sysButtonsPanel.add(mkdirButton);
@@ -371,17 +409,6 @@ public class HomeForm {
         removeButton.setBackground(new Color(-8571609));
         removeButton.setText("remove");
         sysButtonsPanel.add(removeButton);
-        uploadProgressPanel = new JPanel();
-        uploadProgressPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
-        activitiesPanel.add(uploadProgressPanel, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        uploadProgressLabel = new JLabel();
-        uploadProgressLabel.setForeground(new Color(-16729235));
-        uploadProgressLabel.setText("");
-        uploadProgressLabel.setVisible(false);
-        uploadProgressPanel.add(uploadProgressLabel);
-        uploadProgressBar = new JProgressBar();
-        uploadProgressBar.setVisible(false);
-        uploadProgressPanel.add(uploadProgressBar);
     }
 
     /**
