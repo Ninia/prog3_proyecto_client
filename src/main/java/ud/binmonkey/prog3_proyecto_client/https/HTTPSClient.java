@@ -10,14 +10,51 @@ import java.util.HashMap;
 
 @SuppressWarnings({"WeakerAccess", "SameParameterValue"})
 public class HTTPSClient {
-    private String host = URI.getHost("https-client");
-    private int port = URI.getPort("https-client");
-
     static {
         HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> hostname.equals("localhost"));
     }
 
+    private String host = URI.getHost("https-client");
+    private int port = URI.getPort("https-client");
+
     public HTTPSClient() {
+    }
+
+    /**
+     * Parse response from @listDir to JSON Object
+     *
+     * @param response response from @listDir
+     * @return JSON Object
+     */
+    public static JSONObject parseJSONResponse(Response response) {
+        if (response == null) {
+            return null;
+        }
+        return new JSONObject(response.getContent());
+    }
+
+    public static void main(String[] args) {
+        String userName = "test";
+        String passWord = "test";
+        HTTPSClient httpsClient = new HTTPSClient();
+        String token = httpsClient.login(userName, passWord).getContent();
+        if (token == null) {
+            System.out.println("Login failed.");
+        }
+        System.out.println("Token: " + token);
+        System.out.println(httpsClient.sessionInfo(userName, token));
+        System.out.println(httpsClient.userInfo(userName, token));
+        System.out.println(httpsClient.changeProperty(userName, "birth_date", "23-10-1990", token));
+        System.out.println(httpsClient.userInfo(userName, token));
+        System.out.println(httpsClient.parseJSONResponse(httpsClient.listDir(userName, null, token)));
+
+        /* Uncomment the following lines to check user token expiration */
+        /*
+        try {
+            Thread.sleep(6 * 60 * 1000);
+        } catch (InterruptedException e) {}
+        System.out.println(httpsClient.sessionInfo(userName, token));
+        */
     }
 
     /**
@@ -169,31 +206,21 @@ public class HTTPSClient {
     }
 
     /**
-     * Parse response from @listDir to JSON Object
-     * @param response response from @listDir
-     * @return JSON Object
-     */
-    public static JSONObject parseJSONResponse(Response response) {
-        if (response == null) {
-            return null;
-        }
-        return new JSONObject(response.getContent());
-    }
-
-    /**
      * Request search for a Movie in OMDB
-     * @param movieName movie to search
+     * @param title Title to search
+     * @param type Type of titles
      * @param userName username of user that will request the search
      * @param token current session token
      * @return Response of server
      */
-    public Response searchMovie(String movieName, String userName, String token) {
-        Pair[] pairs = new Pair[] {
-                new Pair("movieName", movieName),
+    public Response searchMovie(String title, String type, String userName, String token) {
+        Pair[] pairs = new Pair[]{
+                new Pair("title", title),
+                new Pair("type", type),
                 new Pair("user", userName),
                 new Pair("token", token)
         };
-        if (movieName != null && userName != null && token != null) {
+        if (title != null && type != null && userName != null && token != null) {
             try {
                 return HTTPS.sendRequest("https://" + host, port, "/searchMovie",
                         Methods.GET, null, null, pairs);
@@ -202,30 +229,5 @@ public class HTTPSClient {
             }
         }
         return null;
-    }
-
-
-    public static void main(String[] args) {
-        String userName = "test";
-        String passWord = "test";
-        HTTPSClient httpsClient = new HTTPSClient();
-        String token = httpsClient.login(userName, passWord).getContent();
-        if (token == null) {
-            System.out.println("Login failed.");
-        }
-        System.out.println("Token: " + token);
-        System.out.println(httpsClient.sessionInfo(userName, token));
-        System.out.println(httpsClient.userInfo(userName, token));
-        System.out.println(httpsClient.changeProperty(userName, "birth_date", "23-10-1990", token));
-        System.out.println(httpsClient.userInfo(userName, token));
-        System.out.println(httpsClient.parseJSONResponse(httpsClient.listDir(userName, null, token)));
-
-        /* Uncomment the following lines to check user token expiration */
-        /*
-        try {
-            Thread.sleep(6 * 60 * 1000);
-        } catch (InterruptedException e) {}
-        System.out.println(httpsClient.sessionInfo(userName, token));
-        */
     }
 }
