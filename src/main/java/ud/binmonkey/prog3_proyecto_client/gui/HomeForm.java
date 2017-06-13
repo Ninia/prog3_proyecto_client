@@ -146,7 +146,7 @@ public class HomeForm {
     /**
      * Loads the ftp files of the users to @userFileSysTree
      */
-    @SuppressWarnings("CodeBlock2Expr")
+    @SuppressWarnings({"CodeBlock2Expr", "Duplicates"})
     public void loadFileSysTree() {
 
         /* init https client */
@@ -187,7 +187,13 @@ public class HomeForm {
         /* load dirs*/
         for (Object key : ((JSONObject) fileSys.get("directories")).keySet()) {
             if (key instanceof String) {
-                root.add(loadNode((String) key, (JSONObject) ((JSONObject) fileSys.get("directories")).get((String) key)));
+                DefaultMutableTreeNode dirNode = loadNode((String) key,
+                        (JSONObject) ((JSONObject) fileSys.get("directories")).get((String) key));
+                dirNode.setAllowsChildren(true);
+                if (dirNode.getChildCount() == 0) {
+                    dirNode.add(new DefaultMutableTreeNode("(no files yet)"));
+                }
+                root.add(dirNode);
             }
         }
 
@@ -310,6 +316,7 @@ public class HomeForm {
      * @param fileSys JSONObject with content of directory
      * @return node containing information about a directory
      */
+    @SuppressWarnings("Duplicates")
     public DefaultMutableTreeNode loadNode(String name, JSONObject fileSys) {
 
         /* root component of this node */
