@@ -42,7 +42,7 @@ public class FilmForm {
      *
      * @noinspection ALL
      */
-    public void $$$setupUI$$$() {
+    private void $$$setupUI$$$() {
         createUIComponents();
         filmMainPanel.setLayout(new BorderLayout(0, 0));
         titlePanel.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
