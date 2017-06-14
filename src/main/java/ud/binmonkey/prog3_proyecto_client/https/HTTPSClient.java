@@ -255,4 +255,38 @@ public class HTTPSClient {
         }
         return null;
     }
+
+    public Response postJSON(JSONObject json, String path
+//        , String userName, String token
+    ) {
+        if (json != null
+//                && userName != null && token != null
+                ){
+
+            Pair[] pairs = null; /* debug */
+//            pairs = new Pair[]{
+//                new Pair("username", userName),
+//                new Pair("token", token),
+//            };
+
+            HashMap<String, String> headers = new HashMap<>();
+            headers.put("content-type", "application/json");
+
+            try {
+                return HTTPS.sendRequest("https://" + host, port, path, Methods.POST, headers,
+                        json.toString(), pairs);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    public Response publishMovie(JSONObject json
+//        ,String userName, String token
+    ) {
+        return postJSON(json, "/publishMovie"
+//        , userName, token
+        );
+    }
 }

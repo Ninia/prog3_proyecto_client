@@ -93,6 +93,7 @@ public class OmdbSearchForm {
                         HTTPSClient.parseJSONResponse((new HTTPSClient()).getMovie(selectedID))
                 );
                 JFrame editionFrame = new JFrame("Edit movie details");
+                frame.setTitle("Edit movie details");
                 editionFrame.getContentPane().add(new MovieInfoForm(movie).editPanel);
                 editionFrame.setVisible(true);
                 editionFrame.setSize(800, 600);
