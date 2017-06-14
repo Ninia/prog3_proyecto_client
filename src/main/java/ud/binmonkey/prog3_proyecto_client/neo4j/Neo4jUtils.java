@@ -31,33 +31,43 @@ public class Neo4jUtils extends Neo4j {
     }
 
     public ArrayList<ArrayList> getTitleList(ArrayList<ArrayList> titleList, String type,
-                                             String condition, String value) {
+                                             String condition, String value, String orderBy) {
         StatementResult result;
 
         if (value.replace(" ", "").equals("")) {
             value = ".* *.";
         }
 
-        switch (condition.toLowerCase()) { /* TODO add wildcards */
+        switch (orderBy.toLowerCase()) {
             case "title":
-                result = getSession().run("MATCH (n:" + type + ") " +
-                        "WHERE n.title =~ '" + value + "'" +
-                        "RETURN n.name as id, n.title AS title, n.year AS year, n.poster as poster");
+                orderBy = "n.title, n.year, n.imdbRating";
                 break;
             case "year":
-                result = getSession().run("MATCH (n:" + type + ") " +
-                        "WHERE n.year =~ '" + value + "'" +
-                        "RETURN n.name as id, n.title AS title, n.year AS year, n.poster as poster");
+                orderBy = "n.year, n.title, n.imdbRating";
                 break;
+            case "rating":
+                orderBy = "n.imdbRating DESCENDING, n.year, n.title";
+                break;
+        }
+
+        switch (condition.toLowerCase()) { /* TODO add wildcards */
             case "genre":
-                result = getSession().run("MATCH p=(n:Genre)-[r:GENRE]->(m:" + type + ")" +
-                        "WHERE n.name =~ '" + value + "' " +
-                        "RETURN m.name as id, m.title AS title, m.year AS year, m.poster as poster");
+                result = getSession().run("MATCH p=(m:Genre)-[r:GENRE]->(n:" + type + ")" +
+                        "WHERE m.name =~ '" + value + "' " +
+                        "RETURN n.name as id, n.title AS title, n.poster as poster " +
+                        "ORDER BY " + orderBy);
+                break;
+            case "person":
+                result = getSession().run("MATCH p=(m:Person)-[r]->(n:" + type + ") " +
+                        "WHERE m.name =~ '" + value + "' " +
+                        "RETURN n.name as id, n.title AS title, n.poster as poster " +
+                        "ORDER BY n." + orderBy);
                 break;
             default:
-                result = getSession().run("MATCH p=(n:Person)-[r]->(m:" + type + ") " +
-                        "WHERE n.name =~ '" + value + "' " +
-                        "RETURN m.name as id, m.title AS title, m.year AS year, m.poster as poster");
+                result = getSession().run("MATCH (n:" + type + ") " +
+                        "WHERE n." + condition.toLowerCase() + " =~ '" + value + "'" +
+                        "RETURN n.name as id, n.title AS title, n.poster as poster " +
+                        "ORDER BY " + orderBy);
                 break;
         }
 
@@ -69,29 +79,30 @@ public class Neo4jUtils extends Neo4j {
             ArrayList<String> title = new ArrayList<>();
 
             title.add(record.get("id").toString().replaceAll("\"", "")); /* Replaces quotation marks */
-            title.add(record.get("poster").toString().replaceAll("\"", ""));
             title.add(record.get("title").toString().replaceAll("\"", ""));
+            title.add(record.get("poster").toString().replaceAll("\"", ""));
 
-            titleList.add(title);
+            if (!titleList.contains(title)) /* Fixes duplicate if person has two roles in the same movie */
+                titleList.add(title);
         }
 
         return titleList;
     }
 
-    public ArrayList<ArrayList> getTitles(MediaType mediaType, String condition, String value) {
+    public ArrayList<ArrayList> getTitles(MediaType mediaType, String condition, String value, String orderBy) {
 
         ArrayList<ArrayList> titleList = new ArrayList<>();
 
         switch (mediaType) {
             case MOVIE:
-                getTitleList(titleList, "Movie", condition, value);
+                getTitleList(titleList, "Movie", condition, value, orderBy);
                 break;
             case SERIES:
-                getTitleList(titleList, "Series", condition, value);
+                getTitleList(titleList, "Series", condition, value, orderBy);
                 break;
             case ALL:
-                getTitleList(titleList, "Movie", condition, value);
-                getTitleList(titleList, "Series", condition, value);
+                getTitleList(titleList, "Movie", condition, value, orderBy);
+                getTitleList(titleList, "Series", condition, value, orderBy);
                 break;
         }
         return titleList;
