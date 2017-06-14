@@ -48,6 +48,7 @@ public class LoginButtonListener extends LoginFormListener implements ActionList
             MainWindow.INSTANCE.getFrame().setLogged(true);
             MainWindow.INSTANCE.getFrame().setSession(username, password, token);
             MainWindow.INSTANCE.getFrame().setForm(new HomeForm().mainHomePanel);
+            MainWindow.INSTANCE.getFrame().getMainMenuBar().logIn();
         } else {
             this.getLoginForm().usernameOKLabel.setForeground(Color.RED);
             this.getLoginForm().usernameOKLabel.setText("unable to log in");

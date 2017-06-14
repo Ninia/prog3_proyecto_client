@@ -7,6 +7,7 @@ import ud.binmonkey.prog3_proyecto_client.common.network.URLParamEncoder;
 import javax.net.ssl.HttpsURLConnection;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -58,6 +59,10 @@ public class HTTPS {
 
         /* set request method */
         conn.setRequestMethod(method.toString());
+        if (method == Methods.POST ) {
+//            conn.setDoInput(false);
+            conn.setDoOutput(true);
+        }
 
         /* append headers */
         if (headers != null && headers.size() != 0) {
@@ -66,17 +71,14 @@ public class HTTPS {
                 ArrayList<String> headerList = new ArrayList<>();
                 headerList.add(headers.get(header));
                 try {
-                    conn.getHeaderFields().put(header, headerList);
-                } catch (UnsupportedOperationException e) {}
+//                    conn.getHeaderFields().put(header, headerList);
+                } catch (/* UnsupportedOperationException | SocketException */
+                        Exception e ) {}
             }
         }
 
         if (content != null) {
             try {
-                if (headers.get("content-type")!= null && headers.get("content-type").equals("application/json")) {
-                    conn.setRequestProperty("content-type", "application/json");
-                }
-                conn.setDoOutput(true);
                 conn.getOutputStream().write(content.getBytes("UTF-8"));
                 conn.getOutputStream().close();
             } catch (Exception e) {
@@ -99,7 +101,9 @@ public class HTTPS {
 
         response.setHeaders(responseHeaders);
         response.setContent(InputStreamStringReader.readInputStream((InputStream) conn.getContent()));
-
+        try {
+            conn.getOutputStream().close();
+        } catch (ProtocolException e) {}
         return response;
     }
 

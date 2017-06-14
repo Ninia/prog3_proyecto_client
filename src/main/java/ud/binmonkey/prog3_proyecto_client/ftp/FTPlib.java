@@ -118,10 +118,20 @@ public class FTPlib {
         client.makeDirectory(dirname);
     }
 
+    /**
+     * Download a movie poster from the server
+     * @param name name of movie
+     * @param year year of release
+     */
     public static void downloadFilmImage(String name, int year) throws IOException {
         downloadFilmImage(name, new Integer(year).toString());
     }
 
+    /**
+     * Download a movie poster from the server
+     * @param name name of movie
+     * @param year year of release
+     */
     public static void downloadFilmImage(String name, String year) throws IOException {
         FTPClient client = logIn("common", "common");
         client.enterLocalPassiveMode();
@@ -135,6 +145,19 @@ public class FTPlib {
         OutputStream os = new BufferedOutputStream(new FileOutputStream(imagePath));
 
         client.retrieveFile(imagePath, os);
+        os.close();
+    }
+
+    public static void downloadFile(String path, String fileName, String userName, String password) throws IOException {
+        FTPClient client = logIn(userName, password);
+        client.enterLocalPassiveMode();
+        client.setFileType(FTP.BINARY_FILE_TYPE);
+
+        File file = new File("downloads/" + fileName);
+
+        OutputStream os = new BufferedOutputStream(new FileOutputStream(file.getPath()));
+        client.retrieveFile(path, os);
+
         os.close();
     }
 

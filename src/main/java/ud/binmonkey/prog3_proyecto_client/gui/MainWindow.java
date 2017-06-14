@@ -20,7 +20,7 @@ public enum MainWindow {
         private String token;
         private String user;
         private char[] password;
-        private JMenuBar menuBar = new MainMenuBar();
+        private MainMenuBar menuBar = new MainMenuBar();
         private Component lastComponent;
 
         /**
@@ -65,6 +65,10 @@ public enum MainWindow {
 
         public char[] getPassword() {
             return password;
+        }
+
+        public MainMenuBar getMainMenuBar() {
+            return menuBar;
         }
 
         /**
