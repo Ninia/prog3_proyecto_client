@@ -4,20 +4,21 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import org.json.JSONObject;
+import ud.binmonkey.prog3_proyecto_client.gui.MainWindow;
+import ud.binmonkey.prog3_proyecto_client.gui.utils.Notifier;
 import ud.binmonkey.prog3_proyecto_client.https.HTTPSClient;
 import ud.binmonkey.prog3_proyecto_client.omdb.OmdbMovie;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 public class MovieInfoForm {
+
+    private JFrame frame;
     private String selectedFile;
     public JPanel editPanel;
     public JTextField titleText;
@@ -36,7 +37,18 @@ public class MovieInfoForm {
     public JButton saveChangesButton;
     public JButton discardButton;
     public JLabel infoLabel;
+    public JLabel ratingLaabel;
+    public JPanel ratingPanel;
+    public JLabel metascoreLabel;
+    public JLabel metascoreValueLabel;
+    public JLabel imdbRating;
+    public JLabel imdbRatingValueLabel;
+    public JLabel imdbRatingShowLabel;
+    public JLabel runtimeLabel;
+    public JLabel runtimeValueLabel;
+    public JLabel Metascore;
 
+    @SuppressWarnings("RedundantCast") /* more readable */
     public MovieInfoForm(OmdbMovie movie) {
 
         idText.setText(movie.getImdbID());
@@ -45,6 +57,13 @@ public class MovieInfoForm {
         plotTextArea.setText(movie.getPlot());
         plotTextArea.setLineWrap(true);
         plotTextArea.setWrapStyleWord(true);
+        metascoreValueLabel.setText(new Integer(movie.getMetascore()).toString());
+        imdbRatingValueLabel.setText(new Integer(movie.getImdbRating()).toString());
+
+        int hours = (int) (movie.getRuntime() / 60);
+        int minutes = movie.getRuntime() - hours * 60;
+
+        runtimeValueLabel.setText(Integer.toString(hours) + "h " + Integer.toString(minutes) + "m");
 
         /* disable elements */
         titleText.setEditable(false);
@@ -61,8 +80,6 @@ public class MovieInfoForm {
             ImageIcon image = new ImageIcon(poster);
             JLabel label = new JLabel("", image, JLabel.CENTER);
             posterPanel.add(label, BorderLayout.CENTER);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -77,25 +94,22 @@ public class MovieInfoForm {
         });
 
         /* SAVE */
-        saveChangesButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                try {
-                    /* if empty */
-                    if (titleText.getText().replaceAll(" ", "").equals("")
-                            || yearText.getText().replaceAll(" ", "").equals("")
-                            || plotTextArea.getText().replaceAll(" ", "").equals("")) {
-                        infoLabel.setText("Fields cannot be empty");
-                        return;
-                    }
-                    movie.setTitle(titleText.getText());
-                    movie.setYear(yearText.getText());
-                    movie.setPlot(plotTextArea.getText());
-                    infoPanel.repaint();
-                    infoLabel.setText("Changed saved!");
-                } catch (Exception e) {
-                    infoLabel.setText("Error saving changes.");
+        saveChangesButton.addActionListener(actionEvent -> {
+            try {
+                /* if empty */
+                if (titleText.getText().replaceAll(" ", "").equals("")
+                        || yearText.getText().replaceAll(" ", "").equals("")
+                        || plotTextArea.getText().replaceAll(" ", "").equals("")) {
+                    infoLabel.setText("Fields cannot be empty");
+                    return;
                 }
+                movie.setTitle(titleText.getText());
+                movie.setYear(yearText.getText());
+                movie.setPlot(plotTextArea.getText());
+                infoPanel.repaint();
+                infoLabel.setText("Changed saved!");
+            } catch (Exception e) {
+                infoLabel.setText("Error saving changes.");
             }
         });
 
@@ -110,12 +124,24 @@ public class MovieInfoForm {
         confirmButton.addActionListener(actionEvent -> {
             HTTPSClient client = new HTTPSClient();
             try {
-                try {
-                    movie.setFilename(getSelectedFile());
-                } catch (NullPointerException e) {
-                    movie.setFilename(movie.getTitle() + "(" + movie.getYear() + ")");
+
+                String[] exts = getSelectedFile().split(".");
+                String ext = "";
+                if (exts.length > 1) {
+                    ext += exts[exts.length - 1];
+                } else {
+                    ext += ".mp4"; /*? default */
                 }
-                client.publishMovie(movie.toJSON());
+                movie.setFilename(movie.getTitle() + "(" + movie.getYear() + ")" +
+                        /* extension */
+                        ext);
+                client.publishMovie(movie.toJSON(), getSelectedFile(),
+                        MainWindow.INSTANCE.getFrame().getUser(),
+                        MainWindow.INSTANCE.getFrame().getToken());
+
+                getFrame().dispose();
+                Notifier.showMessage(movie.getTitle() + " published correctly!");
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -125,10 +151,12 @@ public class MovieInfoForm {
     public static void main(String[] args) {
         JFrame frame = new JFrame();
         HTTPSClient client = new HTTPSClient();
-        JSONObject response = HTTPSClient.parseJSONResponse(client.getTitle("tt0117951"));
+        JSONObject response = HTTPSClient.parseJSONResponse(client.getTitle(
+                "tt0117951",
+                MainWindow.INSTANCE.getFrame().getUser(),
+                MainWindow.INSTANCE.getFrame().getToken()));
         MovieInfoForm editForm = new MovieInfoForm(new OmdbMovie(response));
         JPanel libraryPanel = editForm.editPanel;
-
         frame.setContentPane(libraryPanel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
@@ -144,6 +172,18 @@ public class MovieInfoForm {
 
     public void setSelectedFile(String selectedFile) {
         this.selectedFile = selectedFile;
+    }
+
+    public JFrame getFrame() {
+        return frame;
+    }
+
+    public void setFrame(JFrame frame) {
+        this.frame = frame;
+    }
+
+    private void createUIComponents() {
+        // TODO: place custom component creation code here
     }
 
     {
@@ -177,7 +217,7 @@ public class MovieInfoForm {
         infoLabel.setText("");
         panel1.add(infoLabel, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         infoPanel = new JPanel();
-        infoPanel.setLayout(new GridLayoutManager(5, 2, new Insets(0, 0, 0, 0), -1, -1));
+        infoPanel.setLayout(new GridLayoutManager(7, 2, new Insets(0, 0, 0, 0), -1, -1));
         editPanel.add(infoPanel, BorderLayout.CENTER);
         idLabel = new JLabel();
         idLabel.setText("IMDB ID");
@@ -214,7 +254,39 @@ public class MovieInfoForm {
         final JScrollPane scrollPane1 = new JScrollPane();
         infoPanel.add(scrollPane1, new GridConstraints(4, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         plotTextArea = new JTextArea();
+        plotTextArea.setRows(5);
+        plotTextArea.setWrapStyleWord(true);
         scrollPane1.setViewportView(plotTextArea);
+        ratingLaabel = new JLabel();
+        ratingLaabel.setText("Rating");
+        infoPanel.add(ratingLaabel, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        ratingPanel = new JPanel();
+        ratingPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
+        infoPanel.add(ratingPanel, new GridConstraints(6, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        metascoreLabel = new JLabel();
+        metascoreLabel.setText("Metascore: ");
+        ratingPanel.add(metascoreLabel);
+        final Spacer spacer3 = new Spacer();
+        ratingPanel.add(spacer3);
+        metascoreValueLabel = new JLabel();
+        metascoreValueLabel.setText("");
+        ratingPanel.add(metascoreValueLabel);
+        final Spacer spacer4 = new Spacer();
+        ratingPanel.add(spacer4);
+        final JSeparator separator1 = new JSeparator();
+        ratingPanel.add(separator1);
+        imdbRatingShowLabel = new JLabel();
+        imdbRatingShowLabel.setText("IMDB: ");
+        ratingPanel.add(imdbRatingShowLabel);
+        imdbRatingValueLabel = new JLabel();
+        imdbRatingValueLabel.setText("");
+        ratingPanel.add(imdbRatingValueLabel);
+        runtimeLabel = new JLabel();
+        runtimeLabel.setText("Runtime");
+        infoPanel.add(runtimeLabel, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        runtimeValueLabel = new JLabel();
+        runtimeValueLabel.setText("");
+        infoPanel.add(runtimeValueLabel, new GridConstraints(5, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         posterPanel = new JPanel();
         posterPanel.setLayout(new BorderLayout(0, 0));
         editPanel.add(posterPanel, BorderLayout.WEST);

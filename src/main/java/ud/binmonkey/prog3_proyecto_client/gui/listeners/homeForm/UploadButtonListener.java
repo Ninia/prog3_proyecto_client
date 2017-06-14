@@ -35,7 +35,6 @@ public class UploadButtonListener extends HomeFormButtonListener {
                 /* make upload progress display components appear */
                 this.getHomeForm().uploadProgressLabel.setText("Upload in progress: ");
                 this.getHomeForm().uploadProgressLabel.setVisible(true);
-                /* TODO: change progress bar values */
                 this.getHomeForm().uploadProgressBar.setValue(10);
                 this.getHomeForm().uploadProgressBar.setVisible(true);
                 MainWindow.INSTANCE.getFrame().getContentPane().validate();

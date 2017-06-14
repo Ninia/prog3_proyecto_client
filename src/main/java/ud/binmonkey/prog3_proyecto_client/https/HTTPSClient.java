@@ -213,17 +213,16 @@ public class HTTPSClient {
 //     * @param token current session token
      * @return Response of server
      */
-    public Response searchMovie(String title, String type
-//            , String userName, String token
-    ) {
+    public Response searchMovie(String title, String type, String userName, String token)
+    {
         Pair[] pairs = new Pair[]{
-//                new Pair("username", userName),
-//                new Pair("token", token),
+                new Pair("username", userName),
+                new Pair("token", token),
                 new Pair("title", title),
                 new Pair("type", type)
         };
         if (title != null && type != null
-//                && userName != null && token != null
+                && userName != null && token != null
                 ) {
             try {
                 return HTTPS.sendRequest("https://" + host, port, "/searchMovie",
@@ -235,16 +234,15 @@ public class HTTPSClient {
         return null;
     }
 
-    public Response getMovie(String id
-//            , String userName, String token
-    ) {
+    public Response getMovie(String id, String userName, String token)
+    {
         Pair[] pairs = new Pair[]{
-//                new Pair("username", userName),
-//                new Pair("token", token),
+                new Pair("username", userName),
+                new Pair("token", token),
                 new Pair("id", id)
         };
         if (id != null
-//                && userName != null && token != null
+                && userName != null && token != null
                 ) {
             try {
                 return HTTPS.sendRequest("https://" + host, port, "/searchMovie",
@@ -256,16 +254,14 @@ public class HTTPSClient {
         return null;
     }
 
-    public Response getTitle(String id
-//            , String userName, String token
-    ) {
+    public Response getTitle(String id, String userName, String token) {
         Pair[] pairs = new Pair[]{
-//                new Pair("username", userName),
-//                new Pair("token", token),
+                new Pair("username", userName),
+                new Pair("token", token),
                 new Pair("id", id)
         };
         if (id != null
-//                && userName != null && token != null
+                && userName != null && token != null
                 ) {
             try {
                 return HTTPS.sendRequest("https://" + host, port, "/getTitleJson",
@@ -277,18 +273,17 @@ public class HTTPSClient {
         return null;
     }
 
-    public Response postJSON(JSONObject json, String path
-//        , String userName, String token
-    ) {
+    public Response postJSON(JSONObject json, String path, String userName, String token)
+    {
         if (json != null
-//                && userName != null && token != null
+                && userName != null && token != null
                 ){
 
             Pair[] pairs = null; /* debug */
-//            pairs = new Pair[]{
-//                new Pair("username", userName),
-//                new Pair("token", token),
-//            };
+            pairs = new Pair[]{
+                new Pair("username", userName),
+                new Pair("token", token),
+            };
 
             HashMap<String, String> headers = new HashMap<>();
             headers.put("content-type", "application/json");
@@ -303,11 +298,36 @@ public class HTTPSClient {
         return null;
     }
 
-    public Response publishMovie(JSONObject json
-//        ,String userName, String token
-    ) {
-        return postJSON(json, "/publishMovie"
-//        , userName, token
+    public Response postJSON(JSONObject json, String path, String sourceFile, String userName, String token)
+    {
+        if (json != null
+                && userName != null && token != null
+                ){
+
+            Pair[] pairs = null; /* debug */
+            pairs = new Pair[]{
+                    new Pair("sourceFile", sourceFile),
+                    new Pair("username", userName),
+                    new Pair("token", token),
+            };
+
+            HashMap<String, String> headers = new HashMap<>();
+            headers.put("content-type", "application/json");
+
+            try {
+                return HTTPS.sendRequest("https://" + host, port, path, Methods.POST, headers,
+                        json.toString(), pairs);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    public Response publishMovie(JSONObject json, String sourceFile, String userName, String token)
+    {
+        return postJSON(json, "/publishMovie",sourceFile
+        , userName, token
         );
     }
 }

@@ -1,9 +1,11 @@
 package ud.binmonkey.prog3_proyecto_client.gui.listeners.homeForm;
 
 import ud.binmonkey.prog3_proyecto_client.gui.HomeForm;
+import ud.binmonkey.prog3_proyecto_client.gui.MainWindow;
 import ud.binmonkey.prog3_proyecto_client.gui.library.OmdbSearchForm;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 
 public class PublishButtonListener extends HomeFormButtonListener {
@@ -23,10 +25,17 @@ public class PublishButtonListener extends HomeFormButtonListener {
         title = title.split("/")[title.split("/").length - 1];
 
         JFrame searchFrame = new JFrame("Search attributes of " + title);
+        Point location = MainWindow.INSTANCE.getFrame().getLocation();
+        location.setLocation(
+                location.getX() + MainWindow.INSTANCE.getFrame().getSize().getWidth() / 2,
+                location.getY()
+        );
+
+        searchFrame.setLocation(location);
 
         OmdbSearchForm searchForm = new OmdbSearchForm();
         searchForm.setFrame(searchFrame);
-        searchForm.setSelectedFile(getHomeForm().getSelectedFile());
+        searchForm.setSelectedFile(getHomeForm().getSelectedDir());
 
         /* set default name */
         searchForm.getSearchText().setText(title.split("\\(")[0]);

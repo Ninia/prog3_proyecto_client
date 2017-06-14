@@ -3,6 +3,7 @@ package ud.binmonkey.prog3_proyecto_client.gui.library;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import org.json.JSONObject;
+import ud.binmonkey.prog3_proyecto_client.gui.MainWindow;
 import ud.binmonkey.prog3_proyecto_client.https.HTTPSClient;
 import ud.binmonkey.prog3_proyecto_client.omdb.MediaType;
 import ud.binmonkey.prog3_proyecto_client.omdb.OmdbMovie;
@@ -90,11 +91,16 @@ public class OmdbSearchForm {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 OmdbMovie movie = new OmdbMovie(
-                        HTTPSClient.parseJSONResponse((new HTTPSClient()).getMovie(selectedID))
+                        HTTPSClient.parseJSONResponse((new HTTPSClient()).getMovie(
+                                selectedID,
+                                MainWindow.INSTANCE.getFrame().getUser(),
+                                MainWindow.INSTANCE.getFrame().getToken()
+                        ))
                 );
                 JFrame editionFrame = new JFrame("Edit movie details");
                 frame.setTitle("Edit movie details");
                 MovieInfoForm form = new MovieInfoForm(movie);
+                form.setFrame(editionFrame);
                 form.setSelectedFile(getSelectedFile());
                 editionFrame.getContentPane().add(form.editPanel);
                 editionFrame.setVisible(true);
@@ -145,9 +151,9 @@ public class OmdbSearchForm {
         HTTPSClient client = new HTTPSClient();
 
         JSONObject json = HTTPSClient.parseJSONResponse(
-                client.searchMovie(searchText.getText(), type.name()
-//                        ,MainWindow.INSTANCE.getFrame().getUser(),
-//                        MainWindow.INSTANCE.getFrame().getToken()
+                client.searchMovie(searchText.getText(), type.name(),
+                        MainWindow.INSTANCE.getFrame().getUser(),
+                        MainWindow.INSTANCE.getFrame().getToken()
                 )
         );
 
