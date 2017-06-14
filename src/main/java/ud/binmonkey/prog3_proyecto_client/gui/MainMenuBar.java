@@ -45,13 +45,13 @@ public class MainMenuBar extends JMenuBar{
         this.myFiles.addMenuListener(new MyFilesMenuListener());
         this.statistics.addMenuListener(new StatisticsMenuListener());
 
-//        this.add(new JSeparator());
+        this.add(new JLabel("  |  "));
         this.add(myFiles);
-//        this.add(new JSeparator());
+        this.add(new JLabel("  |  "));
         this.add(library);
-//        this.add(new JSeparator());
+        this.add(new JLabel("  |  "));
         this.add(omdbSearch);
-//        this.add(new JSeparator());
+        this.add(new JLabel("  |  "));
         this.add(statistics);
 
         this.logOut();
