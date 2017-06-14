@@ -60,12 +60,27 @@ public class HTTPS {
         conn.setRequestMethod(method.toString());
 
         /* append headers */
-        if (headers != null) {
+        if (headers != null && headers.size() != 0) {
 
             for (String header: headers.keySet()) {
                 ArrayList<String> headerList = new ArrayList<>();
                 headerList.add(headers.get(header));
-                conn.getHeaderFields().put(header, headerList);
+                try {
+                    conn.getHeaderFields().put(header, headerList);
+                } catch (UnsupportedOperationException e) {}
+            }
+        }
+
+        if (content != null) {
+            try {
+                if (headers.get("content-type")!= null && headers.get("content-type").equals("application/json")) {
+                    conn.setRequestProperty("content-type", "application/json");
+                }
+                conn.setDoOutput(true);
+                conn.getOutputStream().write(content.getBytes("UTF-8"));
+                conn.getOutputStream().close();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
 
