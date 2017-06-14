@@ -1,4 +1,4 @@
-package ud.binmonkey.prog3_proyecto_client.gui.libray;
+package ud.binmonkey.prog3_proyecto_client.gui.library;
 
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
