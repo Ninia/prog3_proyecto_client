@@ -11,6 +11,8 @@ import ud.binmonkey.prog3_proyecto_client.omdb.OmdbMovie;
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.Map;
@@ -40,6 +42,7 @@ public class OmdbSearchForm {
 
     public OmdbSearchForm() {
 
+        /* JTable Config */
         titleModel.addColumn("ID");
         titleModel.addColumn("Year");
         titleModel.addColumn("Title");
@@ -47,6 +50,7 @@ public class OmdbSearchForm {
 
         titleTable.setModel(titleModel);
 
+        /* JTable Column Sizes */
         titleTable.getColumn("ID").setMaxWidth(70);
         titleTable.getColumn("Year").setMaxWidth(70);
         titleTable.getColumn("Type").setMaxWidth(45);
@@ -55,6 +59,7 @@ public class OmdbSearchForm {
         titleTable.getColumn("Year").setMinWidth(70);
         titleTable.getColumn("Type").setMinWidth(45);
 
+        /* Center Text */
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
 
@@ -62,7 +67,11 @@ public class OmdbSearchForm {
         titleTable.getColumn("Year").setCellRenderer(centerRenderer);
         titleTable.getColumn("Type").setCellRenderer(centerRenderer);
 
-        /* Search Button listener */
+        /* Sorter Config */
+        TableRowSorter<TableModel> sorter = new TableRowSorter<>(titleModel);
+        titleTable.setRowSorter(sorter);
+
+        /* Search Button Listener */
         searchButton.addActionListener((ActionEvent e) -> listSearch());
 
         searchText.addKeyListener(new KeyAdapter() {

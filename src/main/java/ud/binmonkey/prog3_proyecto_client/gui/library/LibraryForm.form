@@ -110,17 +110,20 @@
           </component>
         </children>
       </grid>
-      <component id="c9907" class="javax.swing.JScrollBar" binding="scrollBar1" default-binding="true">
-        <constraints border-constraint="East"/>
-        <properties/>
-      </component>
-      <grid id="9599a" binding="titlesPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-        <margin top="0" left="0" bottom="0" right="0"/>
+      <scrollpane id="a9c30">
         <constraints border-constraint="Center"/>
         <properties/>
         <border type="none"/>
-        <children/>
-      </grid>
+        <children>
+          <grid id="b63cf" binding="titlesPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints/>
+            <properties/>
+            <border type="none"/>
+            <children/>
+          </grid>
+        </children>
+      </scrollpane>
     </children>
   </grid>
 </form>
