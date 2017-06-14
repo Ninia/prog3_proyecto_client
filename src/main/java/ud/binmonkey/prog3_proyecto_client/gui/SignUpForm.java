@@ -115,6 +115,7 @@ public class SignUpForm {
     }
 
     /* sets day numbers depending on month, feb has 29 days if year % 4 == 0 */
+    @SuppressWarnings("Duplicates")
     public void reloadDaysMonths() {
         dayBox.removeAllItems();
         if ((Integer) monthBox.getSelectedItem() == 2) {

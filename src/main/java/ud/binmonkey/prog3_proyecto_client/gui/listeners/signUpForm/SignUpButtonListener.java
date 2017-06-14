@@ -44,8 +44,8 @@ public class SignUpButtonListener extends SignUpFormActionListener {
         if (this.getSignUpForm().dayBox.getSelectedItem() != null &&
                 this.getSignUpForm().monthBox.getSelectedItem() != null &&
                 this.getSignUpForm().yearBox.getSelectedItem() != null) {
-            birthdate = this.getSignUpForm().dayBox.getSelectedIndex() + ""
-                    + this.getSignUpForm().monthBox.getSelectedItem() + ""
+            birthdate = this.getSignUpForm().dayBox.getSelectedIndex() + "-"
+                    + this.getSignUpForm().monthBox.getSelectedItem() + "-"
                     + this.getSignUpForm().yearBox.getSelectedItem();
         }
 

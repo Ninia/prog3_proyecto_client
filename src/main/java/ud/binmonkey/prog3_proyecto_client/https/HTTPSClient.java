@@ -324,6 +324,21 @@ public class HTTPSClient {
         return null;
     }
 
+    public Response changePassword(String username, String token, String newPass, String oldPass) {
+        Pair[] args = new Pair[] {
+                new Pair("newPassword", newPass),
+                new Pair("oldPassword", oldPass)
+        };
+
+        try {
+            return HTTPS.sendRequest("https://" + host, port, "/changePassword", Methods.GET, null,
+                    null, args);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public Response publishMovie(JSONObject json, String sourceFile, String userName, String token)
     {
         return postJSON(json, "/publishMovie",sourceFile
