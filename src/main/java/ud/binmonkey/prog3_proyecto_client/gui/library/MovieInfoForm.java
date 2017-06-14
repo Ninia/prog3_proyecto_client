@@ -15,6 +15,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class MovieInfoForm {
@@ -45,6 +46,9 @@ public class MovieInfoForm {
     public JButton watchButton;
     public JPanel ageLabel;
     public JPanel ageField;
+    public JButton likeButton;
+    public JButton dislikeButton;
+    public JPanel userRatingPanel;
     public JLabel IMDB;
 
     private Neo4jUtils neo4j;
@@ -75,6 +79,14 @@ public class MovieInfoForm {
             e.printStackTrace();
         }
 
+        if (checkRating(id) == 1) {
+            likeButton.setEnabled(false);
+            dislikeButton.setEnabled(true);
+        } else if (checkRating(id) == 0) {
+            likeButton.setEnabled(true);
+            dislikeButton.setEnabled(false);
+        }
+
         idField.setText(id);
         titleField.setText(neo4j.getAttribute(id, MediaType.MOVIE, "title"));
         yearField.setText(neo4j.getAttribute(id, MediaType.MOVIE, "year"));
@@ -87,17 +99,63 @@ public class MovieInfoForm {
 
         watchButton.addActionListener(actionEvent -> {
             /* TODO Watch */
-
-            /* Log view in MySQL */
-            try {
-                mySQL.getStatement().executeUpdate("INSERT INTO user_viewing_history " +
-                        " VALUES (DEFAULT, '" + MainWindow.INSTANCE.getFrame().getUser() + "'," +
-                        " '" + id + "', CURRENT_TIMESTAMP)");
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-
+            dwhView(id);
         });
+
+        likeButton.addActionListener(actionEvent -> {
+            dwhRate(id, 1);
+
+            likeButton.setEnabled(false);
+            dislikeButton.setEnabled(true);
+        });
+
+        dislikeButton.addActionListener(actionEvent -> {
+            dwhRate(id, 0);
+
+            likeButton.setEnabled(true);
+            dislikeButton.setEnabled(false);
+        });
+    }
+
+    private int checkRating(String id) {
+        try {
+
+            ResultSet resultSet = mySQL.getStatement().executeQuery(
+                    "SELECT RATING FROM user_ratings WHERE USER = '" + MainWindow.INSTANCE.getFrame().getUser() +
+                            "' AND OMDBID = '" + id + "';");
+
+            if (resultSet.next()) {
+
+                return resultSet.getInt("RATING");
+
+            } else {
+                return 2;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return 2;
+    }
+
+    private void dwhRate(String id, int value) {
+        try {
+            mySQL.getStatement().executeUpdate("INSERT INTO user_ratings " +
+                    " VALUES (DEFAULT, '" + MainWindow.INSTANCE.getFrame().getUser() + "'," +
+                    " '" + id + "', '" + value + "' , CURRENT_TIMESTAMP)");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void dwhView(String id) {
+        try {
+            mySQL.getStatement().executeUpdate("INSERT INTO user_viewing_history " +
+                    " VALUES (DEFAULT, '" + MainWindow.INSTANCE.getFrame().getUser() + "'," +
+                    " '" + id + "', CURRENT_TIMESTAMP)");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -113,20 +171,20 @@ public class MovieInfoForm {
         infoScrollPane = new JScrollPane();
         MovieInfoPanel.add(infoScrollPane, BorderLayout.CENTER);
         infoPanel = new JPanel();
-        infoPanel.setLayout(new GridLayoutManager(5, 5, new Insets(0, 0, 0, 0), -1, -1));
+        infoPanel.setLayout(new GridLayoutManager(4, 5, new Insets(0, 0, 0, 0), -1, -1));
         infoScrollPane.setViewportView(infoPanel);
         final Spacer spacer1 = new Spacer();
-        infoPanel.add(spacer1, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        infoPanel.add(spacer1, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         plotScrollPane = new JScrollPane();
         plotScrollPane.setEnabled(true);
-        infoPanel.add(plotScrollPane, new GridConstraints(3, 0, 1, 4, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        infoPanel.add(plotScrollPane, new GridConstraints(2, 0, 1, 4, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         plotArea = new JTextArea();
         plotArea.setEditable(false);
         plotArea.setLineWrap(true);
         plotScrollPane.setViewportView(plotArea);
         plotLabel = new JLabel();
         plotLabel.setText("Plot:");
-        infoPanel.add(plotLabel, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        infoPanel.add(plotLabel, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         generalInfoPanel = new JPanel();
         generalInfoPanel.setLayout(new GridLayoutManager(3, 6, new Insets(0, 0, 0, 0), -1, -1));
         infoPanel.add(generalInfoPanel, new GridConstraints(0, 0, 1, 5, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
@@ -160,9 +218,23 @@ public class MovieInfoForm {
         ageField = new JPanel();
         ageField.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
         generalInfoPanel.add(ageField, new GridConstraints(1, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        sidePanel = new JPanel();
+        sidePanel.setLayout(new GridLayoutManager(7, 1, new Insets(0, 0, 0, 0), -1, -1));
+        MovieInfoPanel.add(sidePanel, BorderLayout.WEST);
+        posterPanel = new JPanel();
+        posterPanel.setLayout(new BorderLayout(0, 0));
+        sidePanel.add(posterPanel, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        final Spacer spacer5 = new Spacer();
+        sidePanel.add(spacer5, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        final Spacer spacer6 = new Spacer();
+        sidePanel.add(spacer6, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        final Spacer spacer7 = new Spacer();
+        sidePanel.add(spacer7, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        final Spacer spacer8 = new Spacer();
+        sidePanel.add(spacer8, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         ratingPanel = new JPanel();
-        ratingPanel.setLayout(new GridLayoutManager(1, 7, new Insets(0, 0, 0, 0), -1, -1));
-        infoPanel.add(ratingPanel, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        ratingPanel.setLayout(new GridLayoutManager(1, 6, new Insets(0, 0, 0, 0), -1, -1));
+        sidePanel.add(ratingPanel, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         imdbLabel = new JLabel();
         imdbLabel.setIcon(new ImageIcon(getClass().getResource("/icons/imdb.png")));
         imdbLabel.setText("");
@@ -184,30 +256,25 @@ public class MovieInfoForm {
         metascoreValueLabel = new JLabel();
         metascoreValueLabel.setText("Label");
         ratingPanel.add(metascoreValueLabel, new GridConstraints(0, 5, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final Spacer spacer5 = new Spacer();
-        ratingPanel.add(spacer5, new GridConstraints(0, 6, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
-        sidePanel = new JPanel();
-        sidePanel.setLayout(new GridLayoutManager(6, 1, new Insets(0, 0, 0, 0), -1, -1));
-        MovieInfoPanel.add(sidePanel, BorderLayout.WEST);
-        posterPanel = new JPanel();
-        posterPanel.setLayout(new BorderLayout(0, 0));
-        sidePanel.add(posterPanel, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        final Spacer spacer6 = new Spacer();
-        sidePanel.add(spacer6, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
-        final Spacer spacer7 = new Spacer();
-        sidePanel.add(spacer7, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
-        final Spacer spacer8 = new Spacer();
-        sidePanel.add(spacer8, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
-        final Spacer spacer9 = new Spacer();
-        sidePanel.add(spacer9, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        userRatingPanel = new JPanel();
+        userRatingPanel.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
+        sidePanel.add(userRatingPanel, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        likeButton = new JButton();
+        likeButton.setIcon(new ImageIcon(getClass().getResource("/icons/ic_sentiment_satisfied_black_48dp.png")));
+        likeButton.setText("");
+        userRatingPanel.add(likeButton, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        dislikeButton = new JButton();
+        dislikeButton.setIcon(new ImageIcon(getClass().getResource("/icons/ic_sentiment_very_dissatisfied_black_48dp.png")));
+        dislikeButton.setText("");
+        userRatingPanel.add(dislikeButton, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         southPanel = new JPanel();
         southPanel.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
         MovieInfoPanel.add(southPanel, BorderLayout.SOUTH);
         watchButton = new JButton();
         watchButton.setText("Watch");
         southPanel.add(watchButton, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final Spacer spacer10 = new Spacer();
-        southPanel.add(spacer10, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        final Spacer spacer9 = new Spacer();
+        southPanel.add(spacer9, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
     }
 
     /**
