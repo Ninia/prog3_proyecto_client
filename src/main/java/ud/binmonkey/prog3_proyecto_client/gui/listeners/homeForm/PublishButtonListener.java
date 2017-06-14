@@ -26,6 +26,7 @@ public class PublishButtonListener extends HomeFormButtonListener {
 
         OmdbSearchForm searchForm = new OmdbSearchForm();
         searchForm.setFrame(searchFrame);
+        searchForm.setSelectedFile(getHomeForm().getSelectedFile());
 
         /* set default name */
         searchForm.getSearchText().setText(title.split("\\(")[0]);

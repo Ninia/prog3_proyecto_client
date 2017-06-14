@@ -3,8 +3,8 @@ package ud.binmonkey.prog3_proyecto_client.gui.library;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import org.json.JSONObject;
 import ud.binmonkey.prog3_proyecto_client.https.HTTPSClient;
-import ud.binmonkey.prog3_proyecto_client.omdb.Omdb;
 import ud.binmonkey.prog3_proyecto_client.omdb.OmdbMovie;
 
 import javax.imageio.ImageIO;
@@ -18,6 +18,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 public class MovieInfoForm {
+    private String selectedFile;
     public JPanel editPanel;
     public JTextField titleText;
     public JLabel titleLabel;
@@ -65,6 +66,8 @@ public class MovieInfoForm {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        /* EDIT */
         editButton.addActionListener(actionEvent -> {
             saveChangesButton.setEnabled(true);
             discardButton.setEnabled(true);
@@ -72,6 +75,8 @@ public class MovieInfoForm {
             yearText.setEditable(true);
             titleText.setEditable(true);
         });
+
+        /* SAVE */
         saveChangesButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
@@ -93,37 +98,52 @@ public class MovieInfoForm {
                 }
             }
         });
-        discardButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                titleText.setText(movie.getTitle());
-                yearText.setText(movie.getYear());
-                plotTextArea.setText(movie.getPlot());
-            }
+
+        /* DISCARD */
+        discardButton.addActionListener(actionEvent -> {
+            titleText.setText(movie.getTitle());
+            yearText.setText(movie.getYear());
+            plotTextArea.setText(movie.getPlot());
         });
-        confirmButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                HTTPSClient client = new HTTPSClient();
+
+        /* CONFIRM */
+        confirmButton.addActionListener(actionEvent -> {
+            HTTPSClient client = new HTTPSClient();
+            try {
                 try {
-                    client.publishMovie(movie.toJSON());
-                } catch (Exception e) {
-                    e.printStackTrace();
+                    movie.setFilename(getSelectedFile());
+                } catch (NullPointerException e) {
+                    movie.setFilename(movie.getTitle() + "(" + movie.getYear() + ")");
                 }
+                client.publishMovie(movie.toJSON());
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         });
     }
 
     public static void main(String[] args) {
         JFrame frame = new JFrame();
-        MovieInfoForm editForm = new MovieInfoForm(new OmdbMovie(Omdb.getTitle("tt0117951")));
+        HTTPSClient client = new HTTPSClient();
+        JSONObject response = HTTPSClient.parseJSONResponse(client.getTitle("tt0117951"));
+        MovieInfoForm editForm = new MovieInfoForm(new OmdbMovie(response));
         JPanel libraryPanel = editForm.editPanel;
 
         frame.setContentPane(libraryPanel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
+        frame.setSize(800, 600);
+        frame.setResizable(false);
         frame.setVisible(true);
 
+    }
+
+    public String getSelectedFile() {
+        return selectedFile;
+    }
+
+    public void setSelectedFile(String selectedFile) {
+        this.selectedFile = selectedFile;
     }
 
     {
@@ -179,8 +199,6 @@ public class MovieInfoForm {
         Plot = new JLabel();
         Plot.setText("Plot");
         infoPanel.add(Plot, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_NORTHWEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        plotTextArea = new JTextArea();
-        infoPanel.add(plotTextArea, new GridConstraints(4, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(150, 50), null, 0, false));
         optionsPanel = new JPanel();
         optionsPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
         infoPanel.add(optionsPanel, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
@@ -193,6 +211,10 @@ public class MovieInfoForm {
         discardButton = new JButton();
         discardButton.setText("Discard");
         optionsPanel.add(discardButton);
+        final JScrollPane scrollPane1 = new JScrollPane();
+        infoPanel.add(scrollPane1, new GridConstraints(4, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        plotTextArea = new JTextArea();
+        scrollPane1.setViewportView(plotTextArea);
         posterPanel = new JPanel();
         posterPanel.setLayout(new BorderLayout(0, 0));
         editPanel.add(posterPanel, BorderLayout.WEST);

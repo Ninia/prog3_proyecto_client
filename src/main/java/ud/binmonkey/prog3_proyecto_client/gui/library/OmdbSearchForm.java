@@ -17,6 +17,7 @@ import java.util.Map;
 
 public class OmdbSearchForm {
 
+    private String selectedFile;
     private String selectedID;
     private JFrame frame;
 
@@ -88,13 +89,14 @@ public class OmdbSearchForm {
 
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-
                 OmdbMovie movie = new OmdbMovie(
                         HTTPSClient.parseJSONResponse((new HTTPSClient()).getMovie(selectedID))
                 );
                 JFrame editionFrame = new JFrame("Edit movie details");
                 frame.setTitle("Edit movie details");
-                editionFrame.getContentPane().add(new MovieInfoForm(movie).editPanel);
+                MovieInfoForm form = new MovieInfoForm(movie);
+                form.setSelectedFile(getSelectedFile());
+                editionFrame.getContentPane().add(form.editPanel);
                 editionFrame.setVisible(true);
                 editionFrame.setSize(800, 600);
                 if (frame != null) {
@@ -199,6 +201,14 @@ public class OmdbSearchForm {
 
     public void setFrame(JFrame frame) {
         this.frame = frame;
+    }
+
+    public String getSelectedFile() {
+        return selectedFile;
+    }
+
+    public void setSelectedFile(String selectedFile) {
+        this.selectedFile = selectedFile;
     }
 
     {

@@ -256,6 +256,27 @@ public class HTTPSClient {
         return null;
     }
 
+    public Response getTitle(String id
+//            , String userName, String token
+    ) {
+        Pair[] pairs = new Pair[]{
+//                new Pair("username", userName),
+//                new Pair("token", token),
+                new Pair("id", id)
+        };
+        if (id != null
+//                && userName != null && token != null
+                ) {
+            try {
+                return HTTPS.sendRequest("https://" + host, port, "/getTitleJson",
+                        Methods.GET, null, null, pairs);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
     public Response postJSON(JSONObject json, String path
 //        , String userName, String token
     ) {

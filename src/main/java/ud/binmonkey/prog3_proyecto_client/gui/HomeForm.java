@@ -25,6 +25,8 @@ import java.util.HashMap;
 
 @SuppressWarnings("WeakerAccess")
 public class HomeForm {
+
+    private String selectedFile;
     public JPanel mainHomePanel;
     public JTree userFileSysTree;
     public JPanel activitiesPanel;
@@ -221,9 +223,10 @@ public class HomeForm {
         userFileSysTree.addTreeSelectionListener(treeSelectionEvent -> {
 
             userFileSysTree.setSelectionPath(treeSelectionEvent.getNewLeadSelectionPath());
+            setSelectedFile(userFileSysTree.getSelectionPath().getLastPathComponent().toString());
 
-            /*TODO: check if file is movie */
             String fileName = userFileSysTree.getSelectionPath().getLastPathComponent().toString();
+
             if (MovieName.matchesMovie(fileName)) {
 
                 String name = MovieName.getName(fileName);
@@ -348,6 +351,14 @@ public class HomeForm {
     private void createUIComponents() {
         /* insert manual component creation here */
         loadFileSysTree();
+    }
+
+    public String getSelectedFile() {
+        return selectedFile;
+    }
+
+    public void setSelectedFile(String selectedFile) {
+        this.selectedFile = selectedFile;
     }
 
     /**
