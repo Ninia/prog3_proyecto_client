@@ -4,12 +4,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import ud.binmonkey.prog3_proyecto_client.common.DocumentReader;
+import ud.binmonkey.prog3_proyecto_client.common.network.URLParamEncoder;
+import ud.binmonkey.prog3_proyecto_client.common.time.DateUtils;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Scanner;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
@@ -22,21 +23,21 @@ import java.util.logging.Level;
 public class Omdb {
 
     /* Logger for Omdb */
-    private static final boolean ADD_TO_FIC_LOG = false; /* set false to overwrite */
+    private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger(Omdb.class.getName());
     private static final String keyFile = "conf/keys.xml";
+    /* END Logger for Omdb */
     private static final String KEY = DocumentReader.getAttr(DocumentReader.getDoc(keyFile),
             "omdb").getTextContent().replaceAll("\n", "").replaceAll(" ", "");
-    /* END Logger for Omdb */
     private static final String apikey = "&apikey=" + KEY;
-    private static java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Omdb.class.getName());
     private static String url = "";
 
     static {
         try {
-            logger.addHandler(new FileHandler(
-                    "logs/" + Omdb.class.getName() + ".log.xml", ADD_TO_FIC_LOG));
+            LOG.addHandler(new FileHandler(
+                    "logs/" + Omdb.class.getName() + "." +
+                            DateUtils.currentFormattedDate() + ".log.xml", true));
         } catch (SecurityException | IOException e) {
-            logger.log(Level.SEVERE, "Error in log file creation");
+            LOG.log(Level.SEVERE, "Unable to create log file.");
         }
     }
 
@@ -45,19 +46,19 @@ public class Omdb {
      *
      * @param title - Title to search for
      * @param type  - Type of media to search for
-     * @return a HashMap where the key is the IMDBid
-     * and the value is another HashMap with basic information about the title
+     * @return a JSON where the key is the IMDBi and the value is another JSON with
+     * basic information about the title
      */
-    public static HashMap search(String title, MediaType type) {
+    public static JSONObject search(String title, String type) {
         try {
 
-            HashMap search_results = new HashMap<String, HashMap>();
+            JSONObject search_results = new JSONObject();
 
-            if (!type.equals(MediaType.ALL))
-                url = "http://www.omdbapi.com/?s=" + title.replace(" ", "%20") +
-                        "&type=" + type.name() + apikey;
+            if (!type.equals("all"))
+                url = "http://www.omdbapi.com/?s=" + URLParamEncoder.encode(title) +
+                        "&type=" + URLParamEncoder.encode(type) + apikey;
             else
-                url = "http://www.omdbapi.com/?s=" + title.replace(" ", "%20") + apikey;
+                url = "http://www.omdbapi.com/?s=" + URLParamEncoder.encode(title) + apikey;
 
             URL query = new URL(url);
 
@@ -77,21 +78,21 @@ public class Omdb {
                     entry_info.put("Type", entry.get("Type"));
 
                     if (!entry_info.get("Type").equals("game")) { /* Recent update of OMDB also supports games */
-                        search_results.put(entry.get("imdbID"), entry_info);
+                        search_results.put(entry.get("imdbID").toString(), entry_info);
                     }
                 }
             }
 
-            logger.log(Level.INFO, "Searched for " + title);
+            LOG.log(Level.INFO, "Searched for " + title);
 
             return search_results;
 
         } catch (JSONException e) {
-            logger.log(Level.SEVERE, "Malformed or empty JSON");
+            LOG.log(Level.SEVERE, "Malformed or empty JSON");
         } catch (MalformedURLException e) {
-            logger.log(Level.SEVERE, "Malformed URL - " + url);
+            LOG.log(Level.SEVERE, "Malformed URL - " + url);
         } catch (IOException e) {
-            logger.log(Level.SEVERE, "IOException - " + e.getMessage());
+            LOG.log(Level.SEVERE, "IOException - " + e.getMessage());
         }
 
         return null;
@@ -103,7 +104,7 @@ public class Omdb {
      * @param id - IMDB Title to search for
      * @return a Map where the keys are the names of the values
      */
-    public static Map getTitle(String id) {
+    public static JSONObject getTitle(String id) {
 
         try {
 
@@ -114,13 +115,13 @@ public class Omdb {
             Scanner s = new Scanner(query.openStream());
             JSONObject title = new JSONObject(s.nextLine());
 
-            logger.log(Level.INFO, "Searched info for " + id);
-            return title.toMap();
+            LOG.log(Level.INFO, "Searched info for " + id);
+            return title;
 
         } catch (MalformedURLException e) {
-            logger.log(Level.SEVERE, "Malformed URL - " + url);
+            LOG.log(Level.SEVERE, "Malformed URL - " + url);
         } catch (IOException e) {
-            logger.log(Level.SEVERE, "IOException - " + e.getMessage());
+            LOG.log(Level.SEVERE, "IOException - " + e.getMessage());
         }
 
         return null;
@@ -144,7 +145,7 @@ public class Omdb {
             JSONObject title = new JSONObject(s.nextLine());
 
             String type = (String) title.get("Type");
-            logger.log(Level.INFO, "Searched type of " + id);
+            LOG.log(Level.INFO, "Searched type of " + id);
 
             if (MediaType.MOVIE.equalsName(type)) {
                 return MediaType.MOVIE;
@@ -155,9 +156,9 @@ public class Omdb {
             }
 
         } catch (MalformedURLException e) {
-            logger.log(Level.SEVERE, "Malformed URL - " + url);
+            LOG.log(Level.SEVERE, "Malformed URL - " + url);
         } catch (IOException e) {
-            logger.log(Level.SEVERE, "IOException - " + e.getMessage());
+            LOG.log(Level.SEVERE, "IOException - " + e.getMessage());
         }
 
         return null;

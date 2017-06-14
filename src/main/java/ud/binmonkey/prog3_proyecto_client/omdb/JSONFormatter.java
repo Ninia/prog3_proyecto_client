@@ -1,27 +1,29 @@
 package ud.binmonkey.prog3_proyecto_client.omdb;
 
+import ud.binmonkey.prog3_proyecto_client.common.time.DateUtils;
+
 import java.io.IOException;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 
 public class JSONFormatter {
 
     /* Logger for JSONFormatter */
-    private static final boolean ADD_TO_FIC_LOG = false; /* set false to overwrite */
-    private static java.util.logging.Logger logger = java.util.logging.Logger.getLogger(JSONFormatter.class.getName());
+    private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger(JSONFormatter.class.getName());
 
     static {
         try {
-            logger.addHandler(new FileHandler(
-                    "logs/" + JSONFormatter.class.getName() + ".log.xml", ADD_TO_FIC_LOG));
+            LOG.addHandler(new FileHandler(
+                    "logs/" + JSONFormatter.class.getName() + "." +
+                            DateUtils.currentFormattedDate() + ".log.xml", true));
         } catch (SecurityException | IOException e) {
-            logger.log(Level.SEVERE, "Error in log file creation");
+            LOG.log(Level.SEVERE, "Unable to create log file.");
         }
     }
     /* END Logger for JSONFormatter */
@@ -97,13 +99,12 @@ public class JSONFormatter {
         if (!(date == null)) {
             {
                 try {
-                    /* FIXME */
-                    SimpleDateFormat formatter = new SimpleDateFormat("dd MMM yyyy", Locale.ENGLISH);
-                    formatter.setLenient(false);
+                    DateFormat formatter;
+                    formatter = new SimpleDateFormat("dd MMM yy");
                     return formatter.parse(date.toString());
                 } catch (ParseException e) {
-                    e.printStackTrace();
-                    logger.log(Level.SEVERE, "Invalid date: " + date);
+                    LOG.log(Level.SEVERE, "Invalid date: " + date);
+                    /* TODO */
                 }
             }
         }
@@ -135,7 +136,7 @@ public class JSONFormatter {
             return Integer.parseInt(str_int);
         }
 
-        logger.log(Level.SEVERE, "Missing Info"); //TODO Ask for input
+        LOG.log(Level.SEVERE, "Missing Info"); //TODO Ask for input
         return 0;
 
     }
@@ -155,7 +156,7 @@ public class JSONFormatter {
             return Double.parseDouble(str_double);
         }
 
-        logger.log(Level.SEVERE, "Missing Info"); //TODO Ask for input
+        LOG.log(Level.SEVERE, "Missing Info"); //TODO Ask for input
         return 0;
     }
     /* END Formatter Methods */
