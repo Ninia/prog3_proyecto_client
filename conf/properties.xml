@@ -23,6 +23,11 @@
             <username>username</username>
             <password>password</password>
         </neo4j-server>
+        <!--MySQL-->
+        <mysql-server>
+            <username>username</username>
+            <password>password</password>
+        </mysql-server>
     </network>
 
 </properties>
