@@ -25,48 +25,59 @@ public class SaveButtonListener implements ActionListener {
                             accountForm.repeatPasswordField.getPassword()
                     ))
             {
-                client.changePassword(
+                if (client.changePassword(
                         MainWindow.INSTANCE.getFrame().getUser(),
                         MainWindow.INSTANCE.getFrame().getToken(),
                         new String(MainWindow.INSTANCE.getFrame().getPassword()),
                         new String(accountForm.passwordField.getPassword())
-                );
+                ) == null) {
+                    throw new Exception();
+                }
             }
 
             if (!accountForm.displayNameField.getText().equals(accountForm.userData.get("display_name").toString())) {
-                client.changeProperty(
+                if (client.changeProperty(
                         MainWindow.INSTANCE.getFrame().getUser(),
                         "display_name",
                         accountForm.displayNameField.getText(),
                         MainWindow.INSTANCE.getFrame().getToken()
-                );
+                ) == null) {
+                    throw new Exception();
+                }
             }
 
             if (!accountForm.emailField.getText().equals(accountForm.userData.get("email").toString())) {
-                client.changeProperty(
+                if (client.changeProperty(
                         MainWindow.INSTANCE.getFrame().getUser(),
                         "email",
                         accountForm.emailField.getText(),
                         MainWindow.INSTANCE.getFrame().getToken()
-                );
+                ) == null) {
+                    throw new Exception();
+                }
             }
 
             if (!accountForm.preferredLangField.getText().equals(accountForm.userData.get("preferred_language").toString())) {
-                client.changeProperty(
+
+                if (client.changeProperty(
                         MainWindow.INSTANCE.getFrame().getUser(),
                         "preferred_language",
                         accountForm.preferredLangField.getText(),
                         MainWindow.INSTANCE.getFrame().getToken()
-                );
+                ) == null) {
+                    throw new Exception();
+                }
             }
 
             if (!accountForm.genderField.getText().equals(accountForm.userData.get("gender").toString())) {
-                client.changeProperty(
+                if (client.changeProperty(
                         MainWindow.INSTANCE.getFrame().getUser(),
                         "gender",
                         accountForm.genderField.getText(),
                         MainWindow.INSTANCE.getFrame().getToken()
-                );
+                ) == null) {
+                    throw new Exception();
+                }
             }
 
             if (accountForm.dayBox.getSelectedItem() != null &&
@@ -76,6 +87,25 @@ public class SaveButtonListener implements ActionListener {
                 String birthdate = accountForm.dayBox.getSelectedItem() + "-"
                         + accountForm.monthBox.getSelectedItem() + "-"
                         + accountForm.yearBox.getSelectedItem();
+
+                String[] dateComponents = birthdate.split("-");
+
+                for (int i = 0; i < dateComponents.length; i++ ) {
+                    if (dateComponents[i].length() < 2) {
+                        dateComponents[i] = "0" + dateComponents[i];
+                    }
+                }
+
+                birthdate = dateComponents[0] + "-" + dateComponents[1] + "-" + dateComponents[2];
+
+                if (client.changeProperty(
+                        MainWindow.INSTANCE.getFrame().getUser(),
+                        "birth_date",
+                        birthdate,
+                        MainWindow.INSTANCE.getFrame().getToken()
+                ) == null) {
+                    throw new Exception();
+                }
             }
 
 

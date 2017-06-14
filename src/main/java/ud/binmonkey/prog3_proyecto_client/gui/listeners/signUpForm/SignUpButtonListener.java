@@ -44,9 +44,20 @@ public class SignUpButtonListener extends SignUpFormActionListener {
         if (this.getSignUpForm().dayBox.getSelectedItem() != null &&
                 this.getSignUpForm().monthBox.getSelectedItem() != null &&
                 this.getSignUpForm().yearBox.getSelectedItem() != null) {
+
             birthdate = this.getSignUpForm().dayBox.getSelectedItem() + "-"
                     + this.getSignUpForm().monthBox.getSelectedItem() + "-"
                     + this.getSignUpForm().yearBox.getSelectedItem();
+
+            String[] dateComponents = birthdate.split("-");
+
+            for (String component: dateComponents) {
+                if (component.length() < 2) {
+                    component = "0" + component;
+                }
+            }
+
+            birthdate = dateComponents[0] + "-" + dateComponents[1] + "-" + dateComponents[2];
         }
 
         HTTPSClient client = new HTTPSClient();
