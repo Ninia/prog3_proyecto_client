@@ -3,10 +3,8 @@ package ud.binmonkey.prog3_proyecto_client.gui.omdb;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import org.json.JSONObject;
-import ud.binmonkey.prog3_proyecto_client.gui.MainWindow;
 import ud.binmonkey.prog3_proyecto_client.https.HTTPSClient;
 import ud.binmonkey.prog3_proyecto_client.omdb.MediaType;
-import ud.binmonkey.prog3_proyecto_client.omdb.Omdb;
 import ud.binmonkey.prog3_proyecto_client.omdb.OmdbMovie;
 
 import javax.swing.*;
@@ -90,22 +88,27 @@ public class OmdbListSearchForm {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
 
-                /*
-                 * FIXME: Las siguientes dos líneas hay que hacerlas bien y en @Server.GetMovieHandler
-                 */
-                OmdbMovie movie = new OmdbMovie(Omdb.getTitle(selectedID));
+                OmdbMovie movie = new OmdbMovie(
+                        HTTPSClient.parseJSONResponse((new HTTPSClient()).getMovie(selectedID))
+                );
                 JFrame editionFrame = new JFrame("Edit movie details");
                 editionFrame.getContentPane().add(new OmdbMovieEditForm(movie).editPanel);
+                editionFrame.setVisible(true);
+                editionFrame.setSize(800, 600);
                 if (frame != null) {
+                    editionFrame.setLocation(frame.getLocation());
                     frame.dispose();
                 }
+                editionFrame.setVisible(true);
             }
         });
     }
 
     public static void main(String[] args) {
         JFrame frame = new JFrame("Search");
-        frame.setContentPane(new OmdbListSearchForm().mainOmdbListPanel);
+        OmdbListSearchForm form = new OmdbListSearchForm();
+        form.setFrame(frame);
+        frame.setContentPane(form.getMainOmdbListPanel());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
@@ -138,9 +141,10 @@ public class OmdbListSearchForm {
         HTTPSClient client = new HTTPSClient();
 
         JSONObject json = HTTPSClient.parseJSONResponse(
-                client.searchMovie(searchText.getText(), type.name(),
-                        MainWindow.INSTANCE.getFrame().getUser(),
-                        MainWindow.INSTANCE.getFrame().getToken())
+                client.searchMovie(searchText.getText(), type.name()
+//                        ,MainWindow.INSTANCE.getFrame().getUser(),
+//                        MainWindow.INSTANCE.getFrame().getToken()
+                )
         );
 
         Map search = json.toMap();
