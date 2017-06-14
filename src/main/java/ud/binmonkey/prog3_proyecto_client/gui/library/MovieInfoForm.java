@@ -3,6 +3,7 @@ package ud.binmonkey.prog3_proyecto_client.gui.library;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import ud.binmonkey.prog3_proyecto_client.https.HTTPSClient;
 import ud.binmonkey.prog3_proyecto_client.omdb.Omdb;
 import ud.binmonkey.prog3_proyecto_client.omdb.OmdbMovie;
 
@@ -98,6 +99,17 @@ public class MovieInfoForm {
                 titleText.setText(movie.getTitle());
                 yearText.setText(movie.getYear());
                 plotTextArea.setText(movie.getPlot());
+            }
+        });
+        confirmButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                HTTPSClient client = new HTTPSClient();
+                try {
+                    client.publishMovie(movie.toJSON());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
     }

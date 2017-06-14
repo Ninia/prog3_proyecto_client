@@ -132,6 +132,7 @@ public class Neo4j {
         while (result.hasNext()) {
             Record record = result.next();
 
+
             if (record.get("a.name").asString().equals(name)) {
                 existance = true;
             }
