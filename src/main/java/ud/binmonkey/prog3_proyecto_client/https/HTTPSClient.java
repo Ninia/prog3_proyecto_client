@@ -230,4 +230,21 @@ public class HTTPSClient {
         }
         return null;
     }
+
+    public Response getMovie(String id, String userName, String token) {
+        Pair[] pairs = new Pair[]{
+                new Pair("id", id),
+                new Pair("username", userName),
+                new Pair("token", token)
+        };
+        if (id != null && userName != null && token != null) {
+            try {
+                return HTTPS.sendRequest("https://" + host, port, "/searchMovie",
+                        Methods.GET, null, null, pairs);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
 }

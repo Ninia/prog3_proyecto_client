@@ -6,6 +6,8 @@ import org.json.JSONObject;
 import ud.binmonkey.prog3_proyecto_client.gui.MainWindow;
 import ud.binmonkey.prog3_proyecto_client.https.HTTPSClient;
 import ud.binmonkey.prog3_proyecto_client.omdb.MediaType;
+import ud.binmonkey.prog3_proyecto_client.omdb.Omdb;
+import ud.binmonkey.prog3_proyecto_client.omdb.OmdbMovie;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -15,6 +17,10 @@ import java.awt.event.*;
 import java.util.Map;
 
 public class OmdbListSearchForm {
+
+    private String selectedID;
+    private JFrame frame;
+
     private JPanel mainOmdbListPanel;
 
     private JPanel searchPanel;
@@ -74,6 +80,25 @@ public class OmdbListSearchForm {
                 super.mouseClicked(e);
                 int row = titleTable.getSelectedRow();
                 idText.setText((String) titleModel.getValueAt(row, 0));
+                selectedID = (String) titleModel.getValueAt(row, 0);
+            }
+        });
+
+        /*TODO*/
+        selectButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+
+                /*
+                 * FIXME: Las siguientes dos líneas hay que hacerlas bien y en @Server.GetMovieHandler
+                 */
+                OmdbMovie movie = new OmdbMovie(Omdb.getTitle(selectedID));
+                JFrame editionFrame = new JFrame("Edit movie details");
+                editionFrame.getContentPane().add(new OmdbMovieEditForm(movie).editPanel);
+                if (frame != null) {
+                    frame.dispose();
+                }
             }
         });
     }
@@ -152,6 +177,22 @@ public class OmdbListSearchForm {
 
     public void setTypeBox(JComboBox<MediaType> typeBox) {
         this.typeBox = typeBox;
+    }
+
+    public String getSelectedID() {
+        return selectedID;
+    }
+
+    public void setSelectedID(String selectedID) {
+        this.selectedID = selectedID;
+    }
+
+    public JFrame getFrame() {
+        return frame;
+    }
+
+    public void setFrame(JFrame frame) {
+        this.frame = frame;
     }
 
     {

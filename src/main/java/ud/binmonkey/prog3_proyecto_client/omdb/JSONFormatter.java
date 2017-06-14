@@ -1,12 +1,12 @@
 package ud.binmonkey.prog3_proyecto_client.omdb;
 
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 
@@ -97,12 +97,13 @@ public class JSONFormatter {
         if (!(date == null)) {
             {
                 try {
-                    DateFormat formatter;
-                    formatter = new SimpleDateFormat("dd MMM yy");
+                    /* FIXME */
+                    SimpleDateFormat formatter = new SimpleDateFormat("dd MMM yyyy", Locale.ENGLISH);
+                    formatter.setLenient(false);
                     return formatter.parse(date.toString());
                 } catch (ParseException e) {
+                    e.printStackTrace();
                     logger.log(Level.SEVERE, "Invalid date: " + date);
-                    /* TODO */
                 }
             }
         }

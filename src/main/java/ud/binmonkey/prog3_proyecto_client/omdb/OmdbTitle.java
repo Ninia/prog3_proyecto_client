@@ -21,7 +21,7 @@ public class OmdbTitle {
     protected int runtime; /* Minutes */
     protected String poster;
 
-    OmdbTitle(Map title) {
+    public OmdbTitle(Map title) {
         this.title = (String) title.get("Title");
         this.imdbID = (String) title.get("imdbID");
         this.year = JSONFormatter.yearFormatter(title.get("Year"));

@@ -32,7 +32,6 @@ public class OmdbMovie extends OmdbTitle {
      */
     public OmdbMovie(Map movie) {
         super(movie);
-
         this.dvd = JSONFormatter.dateFormatter(movie.get("DVD"));
         this.boxOffice = JSONFormatter.doubleConversor(movie.get("BoxOffice"));
         this.website = (String) movie.get("Website");

@@ -24,6 +24,7 @@ public class PublishButtonListener extends HomeFormButtonListener {
 
         JFrame searchFrame = new JFrame("Search attributes of " + title);
         OmdbListSearchForm searchForm = new OmdbListSearchForm();
+        searchForm.setFrame(searchFrame);
 
         /* set default name */
         searchForm.getSearchText().setText(title.split("\\(")[0]);
