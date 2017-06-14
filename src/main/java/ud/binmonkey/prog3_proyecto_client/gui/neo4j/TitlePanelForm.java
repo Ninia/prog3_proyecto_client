@@ -3,8 +3,13 @@ package ud.binmonkey.prog3_proyecto_client.gui.neo4j;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 public class TitlePanelForm {
     public JPanel titlePanel;
@@ -14,10 +19,19 @@ public class TitlePanelForm {
 
     public TitlePanelForm(String poster, String year, String title) {
 
-        ImageIcon image = new ImageIcon(poster);
-        JLabel label = new JLabel("", image, JLabel.CENTER);
+        /* Loads poster from IMDB */
+        try {
+            URL url = new URL(poster);
+            BufferedImage posterImage = ImageIO.read(url);
 
-        posterPanel.add(label, BorderLayout.CENTER);
+            ImageIcon image = new ImageIcon(posterImage);
+            JLabel label = new JLabel("", image, JLabel.CENTER);
+            posterPanel.add(label, BorderLayout.CENTER);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         titleLabel.setText(year + ". " + title);
     }

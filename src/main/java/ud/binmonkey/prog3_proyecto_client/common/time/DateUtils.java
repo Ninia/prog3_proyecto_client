@@ -2,6 +2,7 @@ package ud.binmonkey.prog3_proyecto_client.common.time;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 public class DateUtils {
     public static String currentFormattedDate() {
@@ -9,7 +10,7 @@ public class DateUtils {
     }
 
     public static String dateFormatter(Date date) {
-        return (new SimpleDateFormat("dd MMM yy")).format(date);
+        return (new SimpleDateFormat("dd MMM yyyy", Locale.ENGLISH)).format(date);
     }
 
     public static void main(String[] args) {

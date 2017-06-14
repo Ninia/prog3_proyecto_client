@@ -1,19 +1,25 @@
-package ud.binmonkey.prog3_proyecto_client.gui.omdb;
+package ud.binmonkey.prog3_proyecto_client.gui.library;
 
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
+import org.json.JSONObject;
+import ud.binmonkey.prog3_proyecto_client.https.HTTPSClient;
 import ud.binmonkey.prog3_proyecto_client.omdb.MediaType;
-import ud.binmonkey.prog3_proyecto_client.omdb.Omdb;
+import ud.binmonkey.prog3_proyecto_client.omdb.OmdbMovie;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.HashMap;
 import java.util.Map;
 
-public class OmdbListSearchForm {
+
+public class OmdbSearchForm {
+
+    private String selectedID;
+    private JFrame frame;
+
     private JPanel mainOmdbListPanel;
 
     private JPanel searchPanel;
@@ -30,7 +36,7 @@ public class OmdbListSearchForm {
 
     private DefaultTableModel titleModel = new DefaultTableModel();
 
-    public OmdbListSearchForm() {
+    public OmdbSearchForm() {
 
         titleModel.addColumn("ID");
         titleModel.addColumn("Year");
@@ -73,22 +79,47 @@ public class OmdbListSearchForm {
                 super.mouseClicked(e);
                 int row = titleTable.getSelectedRow();
                 idText.setText((String) titleModel.getValueAt(row, 0));
+                selectedID = (String) titleModel.getValueAt(row, 0);
+            }
+        });
+
+        /*TODO*/
+        selectButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+
+                OmdbMovie movie = new OmdbMovie(
+                        HTTPSClient.parseJSONResponse((new HTTPSClient()).getMovie(selectedID))
+                );
+                JFrame editionFrame = new JFrame("Edit movie details");
+                editionFrame.getContentPane().add(new MovieInfoForm(movie).editPanel);
+                editionFrame.setVisible(true);
+                editionFrame.setSize(800, 600);
+                if (frame != null) {
+                    editionFrame.setLocation(frame.getLocation());
+                    frame.dispose();
+                }
+                editionFrame.setVisible(true);
             }
         });
     }
 
     public static void main(String[] args) {
         JFrame frame = new JFrame("Search");
-        frame.setContentPane(new OmdbListSearchForm().mainOmdbListPanel);
+        OmdbSearchForm form = new OmdbSearchForm();
+        form.setFrame(frame);
+        frame.setContentPane(form.getMainOmdbListPanel());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
     }
 
     private void listSearch() {
+
         MediaType type = null;
 
-            /* Clear Table */
+        /* Clear Table */
         while (titleModel.getRowCount() > 0) {
             titleModel.removeRow(0);
         }
@@ -108,7 +139,16 @@ public class OmdbListSearchForm {
                 break;
         }
 
-        HashMap search = Omdb.search(searchText.getText(), type);
+        HTTPSClient client = new HTTPSClient();
+
+        JSONObject json = HTTPSClient.parseJSONResponse(
+                client.searchMovie(searchText.getText(), type.name()
+//                        ,MainWindow.INSTANCE.getFrame().getUser(),
+//                        MainWindow.INSTANCE.getFrame().getToken()
+                )
+        );
+
+        Map search = json.toMap();
 
         if (search != null) {
             for (Object id : search.keySet()) {
@@ -118,6 +158,46 @@ public class OmdbListSearchForm {
                 titleModel.addRow(data);
             }
         }
+    }
+
+    public JPanel getMainOmdbListPanel() {
+        return mainOmdbListPanel;
+    }
+
+    public void setMainOmdbListPanel(JPanel mainOmdbListPanel) {
+        this.mainOmdbListPanel = mainOmdbListPanel;
+    }
+
+    public JTextField getSearchText() {
+        return searchText;
+    }
+
+    public void setSearchText(JTextField searchText) {
+        this.searchText = searchText;
+    }
+
+    public JComboBox<MediaType> getTypeBox() {
+        return typeBox;
+    }
+
+    public void setTypeBox(JComboBox<MediaType> typeBox) {
+        this.typeBox = typeBox;
+    }
+
+    public String getSelectedID() {
+        return selectedID;
+    }
+
+    public void setSelectedID(String selectedID) {
+        this.selectedID = selectedID;
+    }
+
+    public JFrame getFrame() {
+        return frame;
+    }
+
+    public void setFrame(JFrame frame) {
+        this.frame = frame;
     }
 
     {

@@ -2,7 +2,7 @@
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="ud.binmonkey.prog3_proyecto_client.gui.HomeForm">
   <grid id="27dc6" binding="mainHomePanel" layout-manager="BorderLayout" hgap="0" vgap="0">
     <constraints>
-      <xy x="20" y="20" width="519" height="400"/>
+      <xy x="20" y="20" width="534" height="400"/>
     </constraints>
     <properties/>
     <border type="none"/>
@@ -129,15 +129,22 @@
           <component id="559a0" class="javax.swing.JButton" binding="uploadButton">
             <constraints/>
             <properties>
-              <background color="-16752771"/>
+              <background color="-16747879"/>
               <text value="upload"/>
             </properties>
           </component>
           <component id="13de1" class="javax.swing.JButton" binding="removeButton">
             <constraints/>
             <properties>
-              <background color="-8571609"/>
+              <background color="-7259092"/>
               <text value="remove"/>
+            </properties>
+          </component>
+          <component id="9446b" class="javax.swing.JButton" binding="publishButton">
+            <constraints/>
+            <properties>
+              <background color="-16736701"/>
+              <text value="Make Public"/>
             </properties>
           </component>
         </children>

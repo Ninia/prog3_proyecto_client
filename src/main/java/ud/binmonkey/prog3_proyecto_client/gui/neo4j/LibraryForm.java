@@ -2,7 +2,7 @@ package ud.binmonkey.prog3_proyecto_client.gui.neo4j;
 
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
-import ud.binmonkey.prog3_proyecto_client.neo4j.Neo4j;
+import ud.binmonkey.prog3_proyecto_client.neo4j.Neo4jUtils;
 import ud.binmonkey.prog3_proyecto_client.omdb.MediaType;
 
 import javax.swing.*;
@@ -23,11 +23,11 @@ public class LibraryForm {
 
         titlesPanel.setLayout(new GridLayout(3, 20));
 
-        Neo4j neo4j = new Neo4j();
+        Neo4jUtils neo4j = new Neo4jUtils();
 
         for (ArrayList<String> title : neo4j.getTitles(MediaType.ALL)) {
 
-            addTitle("", title.get(2), title.get(1)); //TODO ad posters
+            addTitle(title.get(1), title.get(2), title.get(3));
         }
     }
 
@@ -37,7 +37,7 @@ public class LibraryForm {
         JPanel libraryPanel = libraryForm.libraryPanel;
 
         frame.setContentPane(libraryPanel);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
 

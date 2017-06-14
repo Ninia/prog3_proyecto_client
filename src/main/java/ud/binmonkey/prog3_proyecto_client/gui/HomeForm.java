@@ -44,6 +44,7 @@ public class HomeForm {
     private JPanel movieInfoLayout;
     private JLabel movieNameLabel;
     private JLabel movieYearLabel;
+    public JButton publishButton;
 
     /**
      * Default form shown when user logs in
@@ -80,6 +81,10 @@ public class HomeForm {
         /* reload @userFileSysTree */
         reloadButton.addActionListener(
                 new ReloadButtonListener(this)
+        );
+
+        publishButton.addActionListener(
+                new PublishButtonListener(this)
         );
     }
 
@@ -141,7 +146,7 @@ public class HomeForm {
     /**
      * Loads the ftp files of the users to @userFileSysTree
      */
-    @SuppressWarnings("CodeBlock2Expr")
+    @SuppressWarnings({"CodeBlock2Expr", "Duplicates"})
     public void loadFileSysTree() {
 
         /* init https client */
@@ -150,7 +155,7 @@ public class HomeForm {
         /* Load user files and dirs */
         JSONObject fileSys;
         try {
-            fileSys = client.parseDirResponse(client.listDir(
+            fileSys = client.parseJSONResponse(client.listDir(
                     MainWindow.INSTANCE.getFrame().getUser(), null, MainWindow.INSTANCE.getFrame().getToken()
             ));
 
@@ -182,7 +187,13 @@ public class HomeForm {
         /* load dirs*/
         for (Object key : ((JSONObject) fileSys.get("directories")).keySet()) {
             if (key instanceof String) {
-                root.add(loadNode((String) key, (JSONObject) ((JSONObject) fileSys.get("directories")).get((String) key)));
+                DefaultMutableTreeNode dirNode = loadNode((String) key,
+                        (JSONObject) ((JSONObject) fileSys.get("directories")).get((String) key));
+                dirNode.setAllowsChildren(true);
+                if (dirNode.getChildCount() == 0) {
+                    dirNode.add(new DefaultMutableTreeNode("(no files yet)"));
+                }
+                root.add(dirNode);
             }
         }
 
@@ -305,6 +316,7 @@ public class HomeForm {
      * @param fileSys JSONObject with content of directory
      * @return node containing information about a directory
      */
+    @SuppressWarnings("Duplicates")
     public DefaultMutableTreeNode loadNode(String name, JSONObject fileSys) {
 
         /* root component of this node */
@@ -405,13 +417,17 @@ public class HomeForm {
         renameButton.setText("rename");
         sysButtonsPanel.add(renameButton);
         uploadButton = new JButton();
-        uploadButton.setBackground(new Color(-16752771));
+        uploadButton.setBackground(new Color(-16747879));
         uploadButton.setText("upload");
         sysButtonsPanel.add(uploadButton);
         removeButton = new JButton();
-        removeButton.setBackground(new Color(-8571609));
+        removeButton.setBackground(new Color(-7259092));
         removeButton.setText("remove");
         sysButtonsPanel.add(removeButton);
+        publishButton = new JButton();
+        publishButton.setBackground(new Color(-16736701));
+        publishButton.setText("Make Public");
+        sysButtonsPanel.add(publishButton);
     }
 
     /**
