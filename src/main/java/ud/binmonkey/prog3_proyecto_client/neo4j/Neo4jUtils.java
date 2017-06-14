@@ -26,10 +26,42 @@ public class Neo4jUtils extends Neo4j {
         }
     }
 
-    public ArrayList<ArrayList> getTitleList(ArrayList<ArrayList> titleList, String type) {
+    public static void main(String[] args) {
 
-        StatementResult result = getSession().run("MATCH (n:" + type + ") " +
-                "RETURN n.name as id, n.title AS title, n.year AS year, n.poster as poster");
+    }
+
+    public ArrayList<ArrayList> getTitleList(ArrayList<ArrayList> titleList, String type,
+                                             String condition, String value) {
+        StatementResult result;
+
+        if (value.replace(" ", "").equals("")) {
+            value = ".* *.";
+        }
+
+        switch (condition.toLowerCase()) { /* TODO add wildcards */
+            case "title":
+                result = getSession().run("MATCH (n:" + type + ") " +
+                        "WHERE n.title =~ '" + value + "'" +
+                        "RETURN n.name as id, n.title AS title, n.year AS year, n.poster as poster");
+                break;
+            case "year":
+                result = getSession().run("MATCH (n:" + type + ") " +
+                        "WHERE n.year =~ '" + value + "'" +
+                        "RETURN n.name as id, n.title AS title, n.year AS year, n.poster as poster");
+                break;
+            case "genre":
+                result = getSession().run("MATCH p=(n:Genre)-[r:GENRE]->(m:" + type + ")" +
+                        "WHERE n.name =~ '" + value + "' " +
+                        "RETURN m.name as id, m.title AS title, m.year AS year, m.poster as poster");
+                break;
+            default:
+                result = getSession().run("MATCH p=(n:Person)-[r]->(m:" + type + ") " +
+                        "WHERE n.name =~ '" + value + "' " +
+                        "RETURN m.name as id, m.title AS title, m.year AS year, m.poster as poster");
+                break;
+        }
+
+        LOG.log(Level.INFO, "Searched " + type + " by " + condition + ": " + value);
 
         while (result.hasNext()) {
             Record record = result.next();
@@ -39,8 +71,6 @@ public class Neo4jUtils extends Neo4j {
             title.add(record.get("id").toString().replaceAll("\"", "")); /* Replaces quotation marks */
             title.add(record.get("poster").toString().replaceAll("\"", ""));
             title.add(record.get("title").toString().replaceAll("\"", ""));
-            title.add(record.get("year").toString().replaceAll("\"", ""));
-
 
             titleList.add(title);
         }
@@ -48,20 +78,20 @@ public class Neo4jUtils extends Neo4j {
         return titleList;
     }
 
-    public ArrayList<ArrayList> getTitles(MediaType mediaType) {
+    public ArrayList<ArrayList> getTitles(MediaType mediaType, String condition, String value) {
 
         ArrayList<ArrayList> titleList = new ArrayList<>();
 
         switch (mediaType) {
             case MOVIE:
-                getTitleList(titleList, "Movie");
+                getTitleList(titleList, "Movie", condition, value);
                 break;
             case SERIES:
-                getTitleList(titleList, "Series");
+                getTitleList(titleList, "Series", condition, value);
                 break;
             case ALL:
-                getTitleList(titleList, "Movie");
-                getTitleList(titleList, "Series");
+                getTitleList(titleList, "Movie", condition, value);
+                getTitleList(titleList, "Series", condition, value);
                 break;
         }
         return titleList;
