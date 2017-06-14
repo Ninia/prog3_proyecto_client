@@ -209,18 +209,22 @@ public class HTTPSClient {
      * Request search for a Movie in OMDB
      * @param title Title to search
      * @param type Type of titles
-     * @param userName username of user that will request the search
-     * @param token current session token
+//     * @param userName username of user that will request the search
+//     * @param token current session token
      * @return Response of server
      */
-    public Response searchMovie(String title, String type, String userName, String token) {
+    public Response searchMovie(String title, String type
+//            , String userName, String token
+    ) {
         Pair[] pairs = new Pair[]{
+//                new Pair("username", userName),
+//                new Pair("token", token),
                 new Pair("title", title),
-                new Pair("type", type),
-                new Pair("username", userName),
-                new Pair("token", token)
+                new Pair("type", type)
         };
-        if (title != null && type != null && userName != null && token != null) {
+        if (title != null && type != null
+//                && userName != null && token != null
+                ) {
             try {
                 return HTTPS.sendRequest("https://" + host, port, "/searchMovie",
                         Methods.GET, null, null, pairs);
@@ -231,13 +235,17 @@ public class HTTPSClient {
         return null;
     }
 
-    public Response getMovie(String id, String userName, String token) {
+    public Response getMovie(String id
+//            , String userName, String token
+    ) {
         Pair[] pairs = new Pair[]{
-                new Pair("id", id),
-                new Pair("username", userName),
-                new Pair("token", token)
+//                new Pair("username", userName),
+//                new Pair("token", token),
+                new Pair("id", id)
         };
-        if (id != null && userName != null && token != null) {
+        if (id != null
+//                && userName != null && token != null
+                ) {
             try {
                 return HTTPS.sendRequest("https://" + host, port, "/searchMovie",
                         Methods.GET, null, null, pairs);
