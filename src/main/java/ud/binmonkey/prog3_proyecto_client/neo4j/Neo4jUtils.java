@@ -1,6 +1,7 @@
 package ud.binmonkey.prog3_proyecto_client.neo4j;
 
 
+import org.apache.commons.lang3.StringUtils;
 import org.neo4j.driver.v1.Record;
 import org.neo4j.driver.v1.StatementResult;
 import ud.binmonkey.prog3_proyecto_client.common.time.DateUtils;
@@ -106,6 +107,51 @@ public class Neo4jUtils extends Neo4j {
                 break;
         }
         return titleList;
+    }
+
+    /**
+     * Given a OmdbTitle name and type returns an attribute
+     *
+     * @param omdbID    - Name of the Node
+     * @param type      - MediaType of the Title
+     * @param attribute - Attribute to
+     * @return Value of the attribute
+     */
+    public String getAttribute(String omdbID, MediaType type, String attribute) {
+
+        StatementResult result;
+
+        result = getSession().run("MATCH (n:" + StringUtils.capitalize(type.toString()) + ") " +
+                "WHERE n.name = '" + omdbID + "' " +
+                "RETURN n." + attribute + " as value");
+
+        if (result.hasNext()) {
+            Record record = result.next();
+
+            return record.get("value").toString().replaceAll("\"", "");
+        }
+
+        LOG.log(Level.SEVERE, " Attribute " + attribute + " from " + omdbID + " not found");
+
+        return null;
+    }
+
+    /**
+     * Given the id of a Title return its MediaType
+     *
+     * @param omdbID - id of the OmdbTitle
+     * @return Mediatype of the OmdbTitle
+     */
+    public MediaType getType(String omdbID) {
+
+        if (checkNode(omdbID, "Movie")) {
+            return MediaType.MOVIE;
+        } else if (checkNode(omdbID, "Series")) {
+            return MediaType.SERIES;
+        } else if (checkNode(omdbID, "Episode")) {
+            return MediaType.EPISODE;
+        }
+        return null;
     }
 }
 
