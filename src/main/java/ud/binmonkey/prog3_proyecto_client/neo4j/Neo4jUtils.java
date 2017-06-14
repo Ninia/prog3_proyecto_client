@@ -110,6 +110,24 @@ public class Neo4jUtils extends Neo4j {
     }
 
     /**
+     * Given the id of a Title return its MediaType
+     *
+     * @param omdbID - id of the OmdbTitle
+     * @return Mediatype of the OmdbTitle
+     */
+    public MediaType getType(String omdbID) {
+
+        if (checkNode(omdbID, "Movie")) {
+            return MediaType.MOVIE;
+        } else if (checkNode(omdbID, "Series")) {
+            return MediaType.SERIES;
+        } else if (checkNode(omdbID, "Episode")) {
+            return MediaType.EPISODE;
+        }
+        return null;
+    }
+
+    /**
      * Given a OmdbTitle name and type returns an attribute
      *
      * @param omdbID    - Name of the Node
@@ -137,20 +155,27 @@ public class Neo4jUtils extends Neo4j {
     }
 
     /**
-     * Given the id of a Title return its MediaType
      *
-     * @param omdbID - id of the OmdbTitle
-     * @return Mediatype of the OmdbTitle
      */
-    public MediaType getType(String omdbID) {
+    public String getRating(String omdbID, MediaType type, String scoreOutlet) {
 
-        if (checkNode(omdbID, "Movie")) {
-            return MediaType.MOVIE;
-        } else if (checkNode(omdbID, "Series")) {
-            return MediaType.SERIES;
-        } else if (checkNode(omdbID, "Episode")) {
-            return MediaType.EPISODE;
+        StatementResult result;
+
+        result = getSession().run(
+                "MATCH p=(n:ScoreOutlet)-[r:SCORED]->(m:" + StringUtils.capitalize(type.toString()) + ") " +
+                        "WHERE n.name='" + scoreOutlet + "' AND m.name='" + omdbID + "' " +
+                        "RETURN r.score as score");
+
+        System.out.println(result.hasNext());
+
+        if (result.hasNext()) {
+            Record record = result.next();
+
+            return record.get("score").toString().replaceAll("\"", "");
         }
+
+        LOG.log(Level.SEVERE, "Score for " + omdbID + " from " + scoreOutlet + " not found");
+
         return null;
     }
 }
