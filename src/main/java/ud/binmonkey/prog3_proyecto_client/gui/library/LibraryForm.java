@@ -18,8 +18,7 @@ public class LibraryForm {
     public JComboBox searchbyBox;
     public JButton searchButton;
     public JPanel searchPanel;
-    public JPanel titlesPanel;
-    public JScrollBar scrollBar1;
+    public JPanel titlesScrollPanel;
     public JButton resetButton;
     public JComboBox sortComboBox;
     public JLabel sortLabel;
@@ -27,6 +26,7 @@ public class LibraryForm {
     public JPanel sortPanel;
     public JLabel typeLabel;
     public JComboBox typeBox;
+    public JPanel titlesPanel;
     public JButton Search;
 
     private Neo4jUtils neo4j;
@@ -40,7 +40,7 @@ public class LibraryForm {
 
     public LibraryForm() {
 
-        titlesPanel.setLayout(new GridLayout(4, 10));
+        titlesPanel.setLayout(new GridLayout(0, 5));
         neo4j = new Neo4jUtils();
 
         showTitles(MediaType.ALL, "title", ".* *.", "title"); /* Shows All */ /* TODO move wildcard to method */
@@ -177,11 +177,11 @@ public class LibraryForm {
         defaultComboBoxModel3.addElement("Person");
         searchbyBox.setModel(defaultComboBoxModel3);
         searchPanel.add(searchbyBox, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        scrollBar1 = new JScrollBar();
-        libraryPanel.add(scrollBar1, BorderLayout.EAST);
+        final JScrollPane scrollPane1 = new JScrollPane();
+        libraryPanel.add(scrollPane1, BorderLayout.CENTER);
         titlesPanel = new JPanel();
         titlesPanel.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
-        libraryPanel.add(titlesPanel, BorderLayout.CENTER);
+        scrollPane1.setViewportView(titlesPanel);
     }
 
     /**
