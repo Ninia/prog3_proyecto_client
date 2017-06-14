@@ -13,6 +13,7 @@ import java.util.ArrayList;
 
 
 public class LibraryForm {
+    private static JPanel panelPrevio;
     public JPanel libraryPanel;
     public JTextField searchField;
     public JComboBox searchbyBox;
@@ -28,7 +29,6 @@ public class LibraryForm {
     public JComboBox typeBox;
     public JPanel titlesPanel;
     public JButton Search;
-
     private Neo4jUtils neo4j;
 
     {
@@ -101,13 +101,19 @@ public class LibraryForm {
     public void addTitle(String id, String title, String poster) {
 
         JPanel titlePanel = new TitlePanelForm(id, poster, title).titlePanel;
-        titlePanel.setMaximumSize(new Dimension(400, 400));
-
         titlePanel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent mouseEvent) {
                 if (mouseEvent.getClickCount() == 2) {
-                    System.out.println(id); /* TODO launch edit form */
+
+
+                    MovieInfoForm movieInfoForm = new MovieInfoForm(id);
+                    JPanel movieInfoPanel = movieInfoForm.MovieInfoPanel;
+
+                    libraryPanel.removeAll();
+                    libraryPanel.add(movieInfoPanel);
+                    libraryPanel.revalidate();
+                    libraryPanel.repaint();
                 }
             }
         });

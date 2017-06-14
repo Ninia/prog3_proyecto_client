@@ -107,7 +107,7 @@ public class OmdbSearchForm {
             );
             JFrame editionFrame = new JFrame("Edit movie details");
             frame.setTitle("Edit movie details");
-            MovieInfoForm form = new MovieInfoForm(movie);
+            MovieEditForm form = new MovieEditForm(movie);
             form.setSelectedFile(getSelectedFile());
             editionFrame.getContentPane().add(form.editPanel);
             editionFrame.setVisible(true);
