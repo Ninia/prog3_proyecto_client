@@ -166,8 +166,6 @@ public class Neo4jUtils extends Neo4j {
                         "WHERE n.name='" + scoreOutlet + "' AND m.name='" + omdbID + "' " +
                         "RETURN r.score as score");
 
-        System.out.println(result.hasNext());
-
         if (result.hasNext()) {
             Record record = result.next();
 

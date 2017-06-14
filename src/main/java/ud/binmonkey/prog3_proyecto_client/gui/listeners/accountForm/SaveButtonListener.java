@@ -76,7 +76,6 @@ public class SaveButtonListener implements ActionListener {
                 String birthdate = accountForm.dayBox.getSelectedItem() + "-"
                         + accountForm.monthBox.getSelectedItem() + "-"
                         + accountForm.yearBox.getSelectedItem();
-                System.out.println(birthdate);
             }
 
 
