@@ -1,13 +1,13 @@
 package ud.binmonkey.prog3_proyecto_client.gui;
 
-import ud.binmonkey.prog3_proyecto_client.common.Validator;
-import ud.binmonkey.prog3_proyecto_client.https.HTTPSClient;
-import ud.binmonkey.prog3_proyecto_client.https.Response;
+import com.intellij.uiDesigner.core.GridConstraints;
+import com.intellij.uiDesigner.core.GridLayoutManager;
+import com.intellij.uiDesigner.core.Spacer;
+import ud.binmonkey.prog3_proyecto_client.gui.listeners.common.UserNameFieldListener;
+import ud.binmonkey.prog3_proyecto_client.gui.listeners.signUpForm.*;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.util.Arrays;
 
 @SuppressWarnings({"WeakerAccess", "unchecked"})
@@ -43,10 +43,10 @@ public class SignUpForm {
     public JLabel displayNameInfoLabel;
     public JLabel birthDateOKLabel;
     public JPasswordField repeatField;
-    private JTextField langTextField;
-    private JLabel langInfoLabel;
-    private JLabel langLabel;
-    private JLabel infoLabel;
+    public JTextField langTextField;
+    public JLabel langInfoLabel;
+    public JLabel langLabel;
+    public JLabel infoLabel;
 
     public int[] month31 = new int[]{1, 3, 5, 7, 8, 10, 12};
     public int[] month30 = new int[]{4, 6, 9, 11};
@@ -79,121 +79,43 @@ public class SignUpForm {
         dayBox.setSelectedIndex(0);
 
         /* switch to login form */
-        LogInButton.addActionListener(actionEvent -> MainWindow.INSTANCE.getFrame().setForm(new LoginForm().mainLoginPanel));
+        LogInButton.addActionListener(
+                new LoginButtonListener(this)
+        );
 
         /* set correct month days*/
-        monthBox.addActionListener(actionEvent -> {
-            int currentDay = (Integer) dayBox.getSelectedItem();
-            reloadDaysMonths();
-            try {
-                dayBox.setSelectedItem(currentDay);
-            } catch (Exception e) {
-                dayBox.setSelectedIndex(0);
-            }
-        });
+        monthBox.addActionListener(
+                new MonthBoxListener(this)
+        );
 
         /* set correct month days for february */
-        yearBox.addActionListener(actionEvent -> {
-            int currentDay = (Integer) dayBox.getSelectedItem();
-            reloadDaysMonths();
-            try {
-                dayBox.setSelectedItem(currentDay);
-            } catch (Exception e) {
-                dayBox.setSelectedIndex(0);
-            }
-        });
+        yearBox.addActionListener(
+                new YearBoxListener(this)
+        );
 
         /* check validity of username */
-        usernameField.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyReleased(KeyEvent keyEvent) {
-                super.keyTyped(keyEvent);
-                if (Validator.validName(usernameField.getText().toLowerCase())) {
-                    usernameOKLabel.setForeground(Color.GREEN);
-                    usernameOKLabel.setText("valid name!");
-                } else {
-                    usernameOKLabel.setForeground(Color.RED);
-                    usernameOKLabel.setText("invalid username");
-                }
-            }
-        });
+        usernameField.addKeyListener(
+                new UserNameFieldListener(this.usernameField, this.usernameOKLabel)
+        );
 
         /* check if passwords are equal */
-        repeatField.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyReleased(KeyEvent keyEvent) {
-                super.keyTyped(keyEvent);
-                if (Arrays.equals(passwordField.getPassword(), repeatField.getPassword())) {
-                    repeatPasswordOkLabel.setText("passwords match");
-                } else {
-                    repeatPasswordOkLabel.setText("passwords don't match");
-                }
-            }
-        });
+        repeatField.addKeyListener(
+                new RepeatPasswordListener(this)
+        );
 
         /* check correctness of fields, call @HTTPSClient.sinUp method */
-        SignUpButton.addActionListener(actionEvent -> {
-
-            if (!equalPasswords(passwordField.getPassword(), repeatField.getPassword())) {
-                repeatPasswordOkLabel.setForeground(Color.RED);
-                repeatPasswordOkLabel.setText("passwords don't match");
-                return;
-            }
-
-            if (!Validator.validEmail(emailField.getText())) {
-                emailOKlabel.setForeground(Color.RED);
-                emailOKlabel.setText("not a valid email");
-                return;
-            }
-
-            String username = usernameField.getText();
-            char[] password = passwordField.getPassword();
-            String email = emailField.getText();
-            String display_name = displayNameField.getText();
-            String gender = genderField.getText();
-            String preferred_lang = langTextField.getText();
-            String birthdate = null;
-
-            if (dayBox.getSelectedItem() != null && monthBox.getSelectedItem() != null && yearBox.getSelectedItem() != null) {
-                birthdate = dayBox.getSelectedIndex() + "" + monthBox.getSelectedItem() + "" + yearBox.getSelectedItem();
-            }
-
-            HTTPSClient client = new HTTPSClient();
-            Response response = client.signUp(username, password, display_name, email, birthdate, gender, preferred_lang);
-
-            /*
-             * TODO: does @HTTPSClient.signUp return null even if response was provided?
-             */
-            if (response != null) {
-                if (response.getContent().matches("Username [\\w|\\d]+ already found.")) {
-                    usernameOKLabel.setForeground(Color.RED);
-                    usernameOKLabel.setText("username already taken");
-                } else {
-                   /* success */
-                    infoLabel.setText("Success! log in to your new account:");
-                }
-            } else {
-                infoLabel.setText("unable to create account");
-            }
-        });
+        SignUpButton.addActionListener(
+                new SignUpButtonListener(this)
+        );
 
         /* check validity of email */
-        emailField.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyReleased(KeyEvent keyEvent) {
-                super.keyReleased(keyEvent);
-                if (!Validator.validEmail(emailField.getText())) {
-                    emailOKlabel.setForeground(Color.RED);
-                    emailOKlabel.setText("not a valid email");
-                } else {
-                    emailOKlabel.setForeground(Color.GREEN);
-                    emailOKlabel.setText("valid email!");
-                }
-            }
-        });
+        emailField.addKeyListener(
+                new EmailFormListener(this)
+        );
     }
 
     /* sets day numbers depending on month, feb has 29 days if year % 4 == 0 */
+    @SuppressWarnings("Duplicates")
     public void reloadDaysMonths() {
         dayBox.removeAllItems();
         if ((Integer) monthBox.getSelectedItem() == 2) {
@@ -253,18 +175,18 @@ public class SignUpForm {
         mainSignUpPanel = new JPanel();
         mainSignUpPanel.setLayout(new BorderLayout(0, 0));
         logInPanel = new JPanel();
-        logInPanel.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(1, 3, new Insets(0, 0, 0, 0), -1, -1));
+        logInPanel.setLayout(new GridLayoutManager(1, 3, new Insets(0, 0, 0, 0), -1, -1));
         mainSignUpPanel.add(logInPanel, BorderLayout.SOUTH);
         final JLabel label1 = new JLabel();
         label1.setText("Already have an account?");
-        logInPanel.add(label1, new com.intellij.uiDesigner.core.GridConstraints(0, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        logInPanel.add(label1, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         LogInButton = new JButton();
         LogInButton.setBackground(new Color(-16748629));
         LogInButton.setBorderPainted(false);
         LogInButton.setText("  Log In  ");
-        logInPanel.add(LogInButton, new com.intellij.uiDesigner.core.GridConstraints(0, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        final com.intellij.uiDesigner.core.Spacer spacer1 = new com.intellij.uiDesigner.core.Spacer();
-        logInPanel.add(spacer1, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        logInPanel.add(LogInButton, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        final Spacer spacer1 = new Spacer();
+        logInPanel.add(spacer1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
         attributesPanel = new JPanel();
         attributesPanel.setLayout(new GridBagLayout());
         mainSignUpPanel.add(attributesPanel, BorderLayout.CENTER);
@@ -409,31 +331,24 @@ public class SignUpForm {
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         attributesPanel.add(genderField, gbc);
-        usernameOKLabel = new JLabel();
-        usernameOKLabel.setText("");
-        gbc = new GridBagConstraints();
-        gbc.gridx = 8;
-        gbc.gridy = 2;
-        gbc.anchor = GridBagConstraints.WEST;
-        attributesPanel.add(usernameOKLabel, gbc);
         emailOKlabel = new JLabel();
         emailOKlabel.setText("");
         gbc = new GridBagConstraints();
-        gbc.gridx = 9;
+        gbc.gridx = 8;
         gbc.gridy = 4;
         gbc.anchor = GridBagConstraints.WEST;
         attributesPanel.add(emailOKlabel, gbc);
         passwordOKLabel = new JLabel();
         passwordOKLabel.setText("");
         gbc = new GridBagConstraints();
-        gbc.gridx = 9;
+        gbc.gridx = 8;
         gbc.gridy = 6;
         gbc.anchor = GridBagConstraints.WEST;
         attributesPanel.add(passwordOKLabel, gbc);
         repeatPasswordOkLabel = new JLabel();
         repeatPasswordOkLabel.setText("");
         gbc = new GridBagConstraints();
-        gbc.gridx = 9;
+        gbc.gridx = 8;
         gbc.gridy = 8;
         gbc.anchor = GridBagConstraints.WEST;
         attributesPanel.add(repeatPasswordOkLabel, gbc);
@@ -441,14 +356,14 @@ public class SignUpForm {
         displayNameInfoLabel.setForeground(new Color(-10066330));
         displayNameInfoLabel.setText("shown instead of username");
         gbc = new GridBagConstraints();
-        gbc.gridx = 9;
+        gbc.gridx = 8;
         gbc.gridy = 12;
         gbc.anchor = GridBagConstraints.WEST;
         attributesPanel.add(displayNameInfoLabel, gbc);
         birthDateOKLabel = new JLabel();
         birthDateOKLabel.setText("");
         gbc = new GridBagConstraints();
-        gbc.gridx = 9;
+        gbc.gridx = 8;
         gbc.gridy = 14;
         gbc.anchor = GridBagConstraints.WEST;
         attributesPanel.add(birthDateOKLabel, gbc);
@@ -570,12 +485,6 @@ public class SignUpForm {
         gbc.gridy = 2;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         attributesPanel.add(spacer19, gbc);
-        final JPanel spacer20 = new JPanel();
-        gbc = new GridBagConstraints();
-        gbc.gridx = 9;
-        gbc.gridy = 2;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        attributesPanel.add(spacer20, gbc);
         repeatField = new JPasswordField();
         gbc = new GridBagConstraints();
         gbc.gridx = 6;
@@ -583,12 +492,12 @@ public class SignUpForm {
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         attributesPanel.add(repeatField, gbc);
-        final JPanel spacer21 = new JPanel();
+        final JPanel spacer20 = new JPanel();
         gbc = new GridBagConstraints();
-        gbc.gridx = 10;
+        gbc.gridx = 9;
         gbc.gridy = 12;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        attributesPanel.add(spacer21, gbc);
+        attributesPanel.add(spacer20, gbc);
         langLabel = new JLabel();
         langLabel.setText("preferred_language");
         gbc = new GridBagConstraints();
@@ -596,12 +505,12 @@ public class SignUpForm {
         gbc.gridy = 18;
         gbc.anchor = GridBagConstraints.EAST;
         attributesPanel.add(langLabel, gbc);
-        final JPanel spacer22 = new JPanel();
+        final JPanel spacer21 = new JPanel();
         gbc = new GridBagConstraints();
         gbc.gridx = 4;
         gbc.gridy = 17;
         gbc.fill = GridBagConstraints.VERTICAL;
-        attributesPanel.add(spacer22, gbc);
+        attributesPanel.add(spacer21, gbc);
         langTextField = new JTextField();
         langTextField.setText("EN");
         gbc = new GridBagConstraints();
@@ -614,17 +523,24 @@ public class SignUpForm {
         langInfoLabel.setForeground(new Color(-10066330));
         langInfoLabel.setText("FR, EN, ES, EU...");
         gbc = new GridBagConstraints();
-        gbc.gridx = 9;
+        gbc.gridx = 8;
         gbc.gridy = 18;
         gbc.anchor = GridBagConstraints.WEST;
         attributesPanel.add(langInfoLabel, gbc);
         infoLabel = new JLabel();
         infoLabel.setText("");
         gbc = new GridBagConstraints();
-        gbc.gridx = 9;
+        gbc.gridx = 8;
         gbc.gridy = 20;
         gbc.anchor = GridBagConstraints.WEST;
         attributesPanel.add(infoLabel, gbc);
+        usernameOKLabel = new JLabel();
+        usernameOKLabel.setText("");
+        gbc = new GridBagConstraints();
+        gbc.gridx = 8;
+        gbc.gridy = 2;
+        gbc.anchor = GridBagConstraints.WEST;
+        attributesPanel.add(usernameOKLabel, gbc);
     }
 
     /**

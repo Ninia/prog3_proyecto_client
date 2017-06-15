@@ -2,10 +2,12 @@ package ud.binmonkey.prog3_proyecto_client.https;
 
 import ud.binmonkey.prog3_proyecto_client.common.InputStreamStringReader;
 import ud.binmonkey.prog3_proyecto_client.common.Pair;
+import ud.binmonkey.prog3_proyecto_client.common.network.URLParamEncoder;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,36 +31,58 @@ public class HTTPS {
             throws IOException {
 
         /* build request uri */
-        StringBuilder url = new StringBuilder();
-        url.append(address).append(":").append(port).append(path);
+        StringBuilder urlBuilder = new StringBuilder();
+        urlBuilder.append(address).append(":").append(port).append(path);
 
         /* append all args */
         if (args != null) {
-            url.append("?");
+            urlBuilder.append("?");
 
             int argCount = 0;
             for (Pair arg: args) {
                 if (argCount > 0) {
-                    url.append("&");
+                    urlBuilder.append("&");
                 }
                 argCount++;
-                url.append(arg.getKey()).append("=").append(arg.getValue());
+                urlBuilder.append(
+                        URLParamEncoder.encode(arg.getKey().toString())
+                ).append("=").append(
+                        URLParamEncoder.encode(arg.getValue().toString())
+                );
             }
         }
 
+        String url = urlBuilder.toString();
+
         /* initialize connection */
-        HttpsURLConnection conn = (HttpsURLConnection) new URL(url.toString()).openConnection();
+        HttpsURLConnection conn = (HttpsURLConnection) new URL(url).openConnection();
 
         /* set request method */
         conn.setRequestMethod(method.toString());
+        if (method == Methods.POST ) {
+//            conn.setDoInput(false);
+            conn.setDoOutput(true);
+        }
 
         /* append headers */
-        if (headers != null) {
+        if (headers != null && headers.size() != 0) {
 
             for (String header: headers.keySet()) {
                 ArrayList<String> headerList = new ArrayList<>();
                 headerList.add(headers.get(header));
-                conn.getHeaderFields().put(header, headerList);
+                try {
+//                    conn.getHeaderFields().put(header, headerList);
+                } catch (/* UnsupportedOperationException | SocketException */
+                        Exception e ) {}
+            }
+        }
+
+        if (content != null) {
+            try {
+                conn.getOutputStream().write(content.getBytes("UTF-8"));
+                conn.getOutputStream().close();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
 
@@ -77,7 +101,9 @@ public class HTTPS {
 
         response.setHeaders(responseHeaders);
         response.setContent(InputStreamStringReader.readInputStream((InputStream) conn.getContent()));
-
+        try {
+            conn.getOutputStream().close();
+        } catch (ProtocolException e) {}
         return response;
     }
 

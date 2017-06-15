@@ -2,12 +2,10 @@ package ud.binmonkey.prog3_proyecto_client.ftp;
 
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
+import ud.binmonkey.prog3_proyecto_client.common.MovieName;
 import ud.binmonkey.prog3_proyecto_client.common.network.URI;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 
 public class FTPlib {
 
@@ -120,9 +118,53 @@ public class FTPlib {
         client.makeDirectory(dirname);
     }
 
+    /**
+     * Download a movie poster from the server
+     * @param name name of movie
+     * @param year year of release
+     */
+    public static void downloadFilmImage(String name, int year) throws IOException {
+        downloadFilmImage(name, new Integer(year).toString());
+    }
+
+    /**
+     * Download a movie poster from the server
+     * @param name name of movie
+     * @param year year of release
+     */
+    public static void downloadFilmImage(String name, String year) throws IOException {
+        FTPClient client = logIn("common", "common");
+        client.enterLocalPassiveMode();
+        client.setFileType(FTP.BINARY_FILE_TYPE);
+
+        String imagePath = "data/images/" + MovieName.formatMovie(name, year) + ".jpg";
+
+        File file = new File(imagePath);
+        file.delete();
+
+        OutputStream os = new BufferedOutputStream(new FileOutputStream(imagePath));
+
+        client.retrieveFile(imagePath, os);
+        os.close();
+    }
+
+    public static void downloadFile(String path, String fileName, String userName, String password) throws IOException {
+        FTPClient client = logIn(userName, password);
+        client.enterLocalPassiveMode();
+        client.setFileType(FTP.BINARY_FILE_TYPE);
+
+        File file = new File("downloads/" + fileName);
+
+        OutputStream os = new BufferedOutputStream(new FileOutputStream(file.getPath()));
+        client.retrieveFile(path, os);
+
+        os.close();
+    }
+
     public static void main(String[] args) {
         try {
-            uploadFile("test", "test", "src/test/resources/ftpd/.ignore", "hi/there");
+//            uploadFile("test", "test", "src/test/resources/ftpd/.ignore", "hi/there");
+            downloadFilmImage("Victoria", 2015);
         } catch (IOException e) {
             e.printStackTrace();
         }

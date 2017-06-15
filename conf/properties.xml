@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<properties>
+
+    <!--Network-->
+    <network>
+        <!--HTTPS Client-->
+        <https-client>
+            <host>localhost</host>
+            <port>8080</port>
+        </https-client>
+        <!--FTP-->
+        <ftp>
+            <host>localhost</host>
+            <port>8022</port>
+        </ftp>
+        <!--Test Client-->
+        <test-client>
+            <port>[port number]</port>
+        </test-client>
+        <!--Neo4j-->
+        <neo4j-server>
+            <server_address>bolt://localhost:7687</server_address>
+            <username>username</username>
+            <password>password</password>
+        </neo4j-server>
+        <!--MySQL-->
+        <mysql-server>
+            <username>username</username>
+            <password>password</password>
+        </mysql-server>
+    </network>
+
+</properties>
