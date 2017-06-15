@@ -51,6 +51,7 @@ public class MovieEditForm {
     @SuppressWarnings("RedundantCast") /* more readable */
     public MovieEditForm(OmdbMovie movie) {
 
+        movie.setLanguage("EN");
         idText.setText(movie.getImdbID());
         titleText.setText(movie.getTitle());
         yearText.setText(movie.getYear());

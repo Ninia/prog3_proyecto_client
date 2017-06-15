@@ -4,6 +4,7 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import org.imgscalr.Scalr;
+import ud.binmonkey.prog3_proyecto_client.ftp.FTPlib;
 import ud.binmonkey.prog3_proyecto_client.mysql.MySQLUtils;
 import ud.binmonkey.prog3_proyecto_client.neo4j.Neo4jUtils;
 import ud.binmonkey.prog3_proyecto_client.omdb.MediaType;
@@ -12,6 +13,7 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
@@ -46,6 +48,8 @@ public class MovieInfoForm {
     public JButton likeButton;
     public JButton dislikeButton;
     public JPanel userRatingPanel;
+    public JLabel downloadStatusPanel;
+    public JProgressBar downloadProgressBar;
     public JLabel IMDB;
 
     private Neo4jUtils neo4j;
@@ -58,7 +62,6 @@ public class MovieInfoForm {
         $$$setupUI$$$();
     }
 
-
     public MovieInfoForm(String id) {
 
         neo4j = new Neo4jUtils();
@@ -66,7 +69,7 @@ public class MovieInfoForm {
 
         /* Loads poster from IMDB */
         try {
-            URL url = new URL(neo4j.getAttribute(id, MediaType.MOVIE, "poster"));
+            URL url = new URL(neo4j.getAttribute(id, "poster"));
             BufferedImage posterImage = ImageIO.read(url);
 
             ImageIcon image = new ImageIcon(Scalr.resize(posterImage, 400));
@@ -85,19 +88,39 @@ public class MovieInfoForm {
             dislikeButton.setEnabled(false);
         }
 
+        downloadProgressBar.setVisible(false);
         idField.setText(id);
-        titleField.setText(neo4j.getAttribute(id, MediaType.MOVIE, "title"));
-        yearField.setText(neo4j.getAttribute(id, MediaType.MOVIE, "year"));
-        plotArea.setText(neo4j.getAttribute(id, MediaType.MOVIE, "plot"));
+        titleField.setText(neo4j.getAttribute(id, "title"));
+        yearField.setText(neo4j.getAttribute(id, "year"));
+        plotArea.setText(neo4j.getAttribute(id, "plot"));
 
         /* Ratings */
-        imdbValueLabel.setText(neo4j.getRating(id, MediaType.MOVIE, "Internet Movie Database"));
-        rottenValueLabel.setText(neo4j.getRating(id, MediaType.MOVIE, "Rotten Tomatoes"));
-        metascoreValueLabel.setText(neo4j.getRating(id, MediaType.MOVIE, "Metacritic"));
+        imdbValueLabel.setText(neo4j.getRating(id, "Internet Movie Database"));
+        rottenValueLabel.setText(neo4j.getRating(id, "Rotten Tomatoes"));
+        metascoreValueLabel.setText(neo4j.getRating(id, "Metacritic"));
 
         watchButton.addActionListener(actionEvent -> {
             /* TODO Watch */
             mySQL.dwhAddView(id);
+
+            Neo4jUtils utils = new Neo4jUtils();
+            String filename = utils.getFilename(id, MediaType.MOVIE, "EN");
+
+            try {
+                downloadProgressBar.setVisible(true);
+                downloadProgressBar.setValue(10);
+                /* create downloads directory */
+                new File("downloads").mkdirs();
+                FTPlib.downloadMovie(filename, filename.split("/")[filename.split("/").length - 1]);
+                downloadProgressBar.setValue(100);
+                downloadStatusPanel.setText("Download successful");
+            } catch (IOException e) {
+                downloadProgressBar.setValue(0);
+                downloadProgressBar.setVisible(false);
+                downloadStatusPanel.setText("Error downloading file");
+                e.printStackTrace();
+            }
+
         });
 
         likeButton.addActionListener(actionEvent -> {
@@ -225,13 +248,18 @@ public class MovieInfoForm {
         dislikeButton.setText("");
         userRatingPanel.add(dislikeButton, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         southPanel = new JPanel();
-        southPanel.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
+        southPanel.setLayout(new GridLayoutManager(1, 4, new Insets(0, 0, 0, 0), -1, -1));
         MovieInfoPanel.add(southPanel, BorderLayout.SOUTH);
         watchButton = new JButton();
-        watchButton.setText("Watch");
-        southPanel.add(watchButton, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        watchButton.setText("Download");
+        southPanel.add(watchButton, new GridConstraints(0, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer9 = new Spacer();
         southPanel.add(spacer9, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        downloadStatusPanel = new JLabel();
+        downloadStatusPanel.setText("");
+        southPanel.add(downloadStatusPanel, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        downloadProgressBar = new JProgressBar();
+        southPanel.add(downloadProgressBar, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     /**

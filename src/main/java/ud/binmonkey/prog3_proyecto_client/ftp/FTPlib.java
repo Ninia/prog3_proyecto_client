@@ -161,6 +161,19 @@ public class FTPlib {
         os.close();
     }
 
+    public static void downloadMovie(String path, String fileName) throws IOException {
+        FTPClient client = logIn("common", "common");
+        client.enterLocalPassiveMode();
+        client.setFileType(FTP.BINARY_FILE_TYPE);
+
+        File file = new File("downloads/" + fileName);
+
+        OutputStream os = new BufferedOutputStream(new FileOutputStream(file.getPath()));
+        client.retrieveFile(path, os);
+
+        os.close();
+    }
+
     public static void main(String[] args) {
         try {
 //            uploadFile("test", "test", "src/test/resources/ftpd/.ignore", "hi/there");
