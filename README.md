@@ -9,11 +9,11 @@ Java Client that comunicates with a Self-Hosted Java Server.
 Screenshots:
 
 <p align="center">
-  <img src="https://github.com/Ninia/prog3.proyecto/blob/master/.web/images/logIn.png" alt="logIn"/>
+  <img src="https://github.com/binary-monkey/prog3_proyecto_client/raw/master/.web/images/logIn.png" alt="logIn"/>
 </p>
 
 <p align="center">
-  <img src="https://github.com/Ninia/prog3.proyecto/blob/master/.web/images/browse.png" alt="logIn"/>
+  <img src="https://github.com/binary-monkey/prog3_proyecto_client/raw/master/.web/images/browse.png" alt="logIn"/>
 </p>
 
 ## License
