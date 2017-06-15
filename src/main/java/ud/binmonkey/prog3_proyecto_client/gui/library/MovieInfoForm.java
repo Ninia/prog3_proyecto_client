@@ -5,7 +5,6 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import org.imgscalr.Scalr;
 import ud.binmonkey.prog3_proyecto_client.ftp.FTPlib;
-import ud.binmonkey.prog3_proyecto_client.gui.MainWindow;
 import ud.binmonkey.prog3_proyecto_client.mysql.MySQLUtils;
 import ud.binmonkey.prog3_proyecto_client.neo4j.Neo4jUtils;
 import ud.binmonkey.prog3_proyecto_client.omdb.MediaType;
@@ -103,10 +102,7 @@ public class MovieInfoForm {
             try {
                 downloadProgressBar.setVisible(true);
                 downloadProgressBar.setValue(10);
-                FTPlib.downloadFile(filename, filename.split("/")[filename.split("/").length - 1],
-                        MainWindow.INSTANCE.getFrame().getUser(),
-                        new String(MainWindow.INSTANCE.getFrame().getPassword())
-                );
+                FTPlib.downloadMovie(filename, filename.split("/")[filename.split("/").length - 1]);
                 downloadProgressBar.setValue(100);
                 downloadStatusPanel.setText("Download successful");
             } catch (IOException e) {
