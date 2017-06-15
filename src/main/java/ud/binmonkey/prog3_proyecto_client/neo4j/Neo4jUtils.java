@@ -126,17 +126,16 @@ public class Neo4jUtils extends Neo4j {
     /**
      * Given a OmdbTitle name and type returns an attribute
      *
-     * @param id    - Name of the Node
-     * @param type      - MediaType of the Title
+     * @param id        - Name of the Node
      * @param attribute - Attribute to
      * @return Value of the attribute
      */
-    public String getAttribute(String id, MediaType type, String attribute) {
+    public String getAttribute(String id, String attribute) {
 
         StatementResult result;
 
-        result = getSession().run("MATCH (n:" + StringUtils.capitalize(type.toString()) + ") " +
-                "WHERE n.name = '" + id + "' " +
+        result = getSession().run("MATCH (n:" + StringUtils.capitalize(getType(id).toString()) +
+                ") WHERE n.name = '" + id + "' " +
                 "RETURN n." + attribute + " as value");
 
         if (result.hasNext()) {
@@ -150,12 +149,31 @@ public class Neo4jUtils extends Neo4j {
         return null;
     }
 
-    public String getRating(String id, MediaType type, String scoreOutlet) {
+    public ArrayList<String> getGenres(String id, ArrayList<String> genres) {
 
         StatementResult result;
 
         result = getSession().run(
-                "MATCH p=(n:ScoreOutlet)-[r:SCORED]->(m:" + StringUtils.capitalize(type.toString()) + ") " +
+                "MATCH p=(n:Genre)-[r:GENRE]->(m:" + StringUtils.capitalize(getType(id).toString())
+                        + ") WHERE m.name='" + id + "' " +
+                        "RETURN n.name as genre");
+
+        while (result.hasNext()) {
+            Record record = result.next();
+
+            genres.add(record.get("genre").toString().replaceAll("\"", ""));
+        }
+
+        return genres;
+    }
+
+    public String getRating(String id, String scoreOutlet) {
+
+        StatementResult result;
+
+        result = getSession().run(
+                "MATCH p=(n:ScoreOutlet)-[r:SCORED]->(m:"
+                        + StringUtils.capitalize(getType(id).toString()) + ") " +
                         "WHERE n.name='" + scoreOutlet + "' AND m.name='" + id + "' " +
                         "RETURN r.score as score");
 
