@@ -4,35 +4,17 @@
 Student project for Programming III course at Deusto University made by [Rafael Romón](https://github.com/rafaelromon), [Saul Segura](https://github.com/luasaul) and [Mikel Solabarrieta](https://github.com/mikelsr). 
 
 ## Description:
-Java Client that comunicates with a Self-Hosted Java Server that stores documents and media files, this Server uses 3 databases:
+Java Client that comunicates with a Self-Hosted Java Server.
 
-* Neo4j - Information about movies, series and music.
-* MongoDB - Documents.
-* DWH - Analytics (Likes, usage, etc).
+Screenshots:
 
 <p align="center">
-  <img src="https://github.com/Ninia/prog3.proyecto/blob/master/src/main/web/images/planteamiento.png" alt="Planteamiento"/>
+  <img src="https://github.com/Ninia/prog3.proyecto/blob/master/.web/images/logIn.png" alt="logIn"/>
 </p>
 
-┻┳|<br>
-┳┻|<br>
-┻┳|<br>
-┳┻|<br>
-┻┳|<br>
-┳┻|<br>
-┻┳|<br>
-┳┻|_<br>
-┻┳| •.•) &nbsp;&nbsp;&nbsp;we are working<br>
-┳┻|⊂&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;on ssl<br>
-┻┳|<br>
-
-## Recommended Installation for Server
-1. Download and install [Vagrant](https://www.vagrantup.com/downloads.html)
-2. Clone [our vagrant repository](
-https://github.com/Ninia/p3p-vagrant) and go to that folder
-3. Run `vagrant up`
-
-**_Hopefully you're good to go!_**
+<p align="center">
+  <img src="https://github.com/Ninia/prog3.proyecto/blob/master/.web/images/browse.png" alt="logIn"/>
+</p>
 
 ## License
 This project fall under the GPL 3 license fell free to use it, modify it and let us know of your changes :)
