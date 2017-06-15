@@ -1,5 +1,6 @@
 package ud.binmonkey.prog3_proyecto_client.omdb;
 
+/* TODO improve enum */
 public enum MediaType {
     MOVIE("movie"),
     SERIES("series"),
