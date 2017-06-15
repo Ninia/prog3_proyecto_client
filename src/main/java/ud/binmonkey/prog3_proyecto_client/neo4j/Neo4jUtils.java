@@ -27,10 +27,6 @@ public class Neo4jUtils extends Neo4j {
         }
     }
 
-    public static void main(String[] args) {
-
-    }
-
     public ArrayList<ArrayList> getTitleList(ArrayList<ArrayList> titleList, String type,
                                              String condition, String value, String orderBy) {
         StatementResult result;
@@ -112,16 +108,16 @@ public class Neo4jUtils extends Neo4j {
     /**
      * Given the id of a Title return its MediaType
      *
-     * @param omdbID - id of the OmdbTitle
+     * @param id - id of the OmdbTitle
      * @return Mediatype of the OmdbTitle
      */
-    public MediaType getType(String omdbID) {
+    public MediaType getType(String id) {
 
-        if (checkNode(omdbID, "Movie")) {
+        if (checkNode(id, "Movie")) {
             return MediaType.MOVIE;
-        } else if (checkNode(omdbID, "Series")) {
+        } else if (checkNode(id, "Series")) {
             return MediaType.SERIES;
-        } else if (checkNode(omdbID, "Episode")) {
+        } else if (checkNode(id, "Episode")) {
             return MediaType.EPISODE;
         }
         return null;
@@ -130,17 +126,17 @@ public class Neo4jUtils extends Neo4j {
     /**
      * Given a OmdbTitle name and type returns an attribute
      *
-     * @param omdbID    - Name of the Node
+     * @param id    - Name of the Node
      * @param type      - MediaType of the Title
      * @param attribute - Attribute to
      * @return Value of the attribute
      */
-    public String getAttribute(String omdbID, MediaType type, String attribute) {
+    public String getAttribute(String id, MediaType type, String attribute) {
 
         StatementResult result;
 
         result = getSession().run("MATCH (n:" + StringUtils.capitalize(type.toString()) + ") " +
-                "WHERE n.name = '" + omdbID + "' " +
+                "WHERE n.name = '" + id + "' " +
                 "RETURN n." + attribute + " as value");
 
         if (result.hasNext()) {
@@ -149,21 +145,18 @@ public class Neo4jUtils extends Neo4j {
             return record.get("value").toString().replaceAll("\"", "");
         }
 
-        LOG.log(Level.SEVERE, " Attribute " + attribute + " from " + omdbID + " not found");
+        LOG.log(Level.SEVERE, " Attribute " + attribute + " from " + id + " not found");
 
         return null;
     }
 
-    /**
-     *
-     */
-    public String getRating(String omdbID, MediaType type, String scoreOutlet) {
+    public String getRating(String id, MediaType type, String scoreOutlet) {
 
         StatementResult result;
 
         result = getSession().run(
                 "MATCH p=(n:ScoreOutlet)-[r:SCORED]->(m:" + StringUtils.capitalize(type.toString()) + ") " +
-                        "WHERE n.name='" + scoreOutlet + "' AND m.name='" + omdbID + "' " +
+                        "WHERE n.name='" + scoreOutlet + "' AND m.name='" + id + "' " +
                         "RETURN r.score as score");
 
         if (result.hasNext()) {
@@ -172,9 +165,29 @@ public class Neo4jUtils extends Neo4j {
             return record.get("score").toString().replaceAll("\"", "");
         }
 
-        LOG.log(Level.SEVERE, "Score for " + omdbID + " from " + scoreOutlet + " not found");
+        LOG.log(Level.SEVERE, "Score for " + id + " from " + scoreOutlet + " not found");
 
         return null;
+    }
+
+    public String getFilename(String id, MediaType type, String language) {
+
+        StatementResult result;
+
+        result = getSession().run(
+                "MATCH p=(n:Language)-[r:SPOKEN_LANGUAGE]->(m:" + StringUtils.capitalize(type.toString()) + ") " +
+                        "WHERE n.name='" + language + "' AND m.name='" + id + "' " +
+                        "RETURN r.filename as filename");
+
+        if (result.hasNext()) {
+            Record record = result.next();
+
+            return record.get("filename").toString().replaceAll("\"", "");
+        }
+
+        LOG.log(Level.SEVERE, "Filename for " + id + " in " + language + " not found");
+
+        return "";
     }
 }
 
