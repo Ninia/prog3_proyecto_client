@@ -78,8 +78,8 @@ public class StatisticsForm {
         genresField.setText(mySQL.getMostWatchedGenre());
         averageRatingField.setText(mySQL.getAverageRating() + " %");
 
-        ratedPercentageField.setText(String.valueOf((mySQL.getUserTitleList("user_ratings").size() /
-                mySQL.getUserTitleList("user_viewing_history").size()) * 100) + " %");
+//        ratedPercentageField.setText(String.valueOf((mySQL.getUserTitleList("user_ratings").size() /
+//                mySQL.getUserTitleList("user_viewing_history").size()) * 100) + " %");
 
         /* Listeners */
         displayBox.addActionListener(actionEvent -> {
